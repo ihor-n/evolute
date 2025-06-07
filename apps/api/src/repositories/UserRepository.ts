@@ -35,8 +35,6 @@ export class UserRepository {
   async aggregate(pipeline: PipelineStage[]): Promise<any[]> {
     return User.aggregate(pipeline).allowDiskUse(true).exec()
   }
-
-  // Add other CRUD methods as needed
 }
 
 export default new UserRepository()
