@@ -48,3 +48,4 @@ export const UserDemographicInsightsTable: React.FC<UserDemographicInsightsTable
     </section>
   )
 }
+UserDemographicInsightsTable.displayName = 'UserDemographicInsightsTable'

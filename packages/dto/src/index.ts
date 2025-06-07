@@ -50,7 +50,7 @@ export interface IFeedbackProvided {
 export interface IParticipation {
   surveysCompleted: number
   surveysInvited: number
-  lastResponseDate?: string // Date as string for easier serialization
+  lastResponseDate?: string
   responseRate: number
   avgResponseTime: number
   responseQuality: IResponseQuality
@@ -67,8 +67,10 @@ export interface IAddress {
   postalCode: string
 }
 
+export type UserStatus = 'active' | 'inactive'
+
 export interface IUser {
-  _id: string // ObjectId typically represented as string
+  _id: string
   firstName: string
   lastName: string
   email: string
@@ -81,11 +83,11 @@ export interface IUser {
   preferences?: IPreferences
   demographics?: IDemographics
   workHistory?: IWorkHistory
-  status: 'active' | 'inactive'
+  status: UserStatus
   participation?: IParticipation
   address?: IAddress
-  joinedAt: string // Date as string
-  lastActive?: string // Date as string
+  joinedAt: string
+  lastActive?: string
   metadata?: Record<string, unknown>
   createdAt?: string
   updatedAt?: string
@@ -105,7 +107,7 @@ export interface IUserWithScore {
   email: string
   engagementScore: number
   engagementLevel: 'Highly Engaged' | 'Moderately Engaged' | 'Low Engagement'
-  demographics?: IDemographics // Optional, as it might not always be present or complete
+  demographics?: IDemographics
 }
 
 export interface IDemographicInsight {

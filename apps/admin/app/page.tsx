@@ -3,14 +3,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { UserTable } from '@/components/UserTable'
 import { fetchUsers, SortDirection, SortableColumn } from '@/lib/api'
-import { IUsersApiResponse } from '@/types'
+import { type IUsersApiResponse } from '@repo/dto'
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationPrevious,
   PaginationNext,
-  Input,
   Button
 } from '@/components/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -22,42 +21,56 @@ export default function UserManagementPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState<SortableColumn | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+  const [filters, setFilters] = useState<Partial<Record<SortableColumn, string>>>({})
 
   const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
     const page = parseInt(searchParams.get('page') || '1', 10)
-    const search = searchParams.get('search') || ''
     const sortCol = searchParams.get('sort') as SortableColumn | null
     const sortDir = (searchParams.get('order') as SortDirection) || 'asc'
+    const currentFilters: Partial<Record<SortableColumn, string>> = {}
+
+    searchParams.forEach((value, key) => {
+      if (key.startsWith('filter_')) {
+        currentFilters[key.replace('filter_', '') as SortableColumn] = value
+      }
+    })
 
     setCurrentPage(page)
-    setSearchTerm(search)
-    setAppliedSearchTerm(search)
     setSortColumn(sortCol)
     setSortDirection(sortDir)
     setSelectedUserIds([])
+    setFilters(currentFilters)
   }, [searchParams])
 
   const updateUrlQueryParams = useCallback(
-    (params: { page?: number; search?: string; sort?: SortableColumn | null; order?: SortDirection }) => {
+    (params: {
+      page?: number
+      sort?: SortableColumn | null
+      order?: SortDirection
+      filters?: Partial<Record<SortableColumn, string>>
+    }) => {
       const newParams = new URLSearchParams(searchParams.toString())
       if (params.page !== undefined) newParams.set('page', String(params.page))
-      if (params.search !== undefined) {
-        if (params.search) newParams.set('search', params.search)
-        else newParams.delete('search')
-      }
       if (params.sort !== undefined) {
         if (params.sort) newParams.set('sort', params.sort)
         else newParams.delete('sort')
       }
       if (params.order !== undefined) newParams.set('order', params.order)
+      if (params.filters !== undefined) {
+        searchParams.forEach((_, key) => {
+          if (key.startsWith('filter_')) newParams.delete(key)
+        })
+        for (const key in params.filters) {
+          if (params.filters[key as SortableColumn])
+            newParams.set(`filter_${key}`, params.filters[key as SortableColumn]!)
+        }
+      }
 
       router.push(`?${newParams.toString()}`, { scroll: false })
     },
@@ -69,7 +82,7 @@ export default function UserManagementPage() {
       try {
         setIsLoading(true)
         setError(null)
-        const data = await fetchUsers(currentPage, ITEMS_PER_PAGE, appliedSearchTerm, sortColumn, sortDirection)
+        const data = await fetchUsers(currentPage, ITEMS_PER_PAGE, sortColumn, sortDirection, filters)
         setUsersData(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
@@ -80,15 +93,7 @@ export default function UserManagementPage() {
       }
     }
     loadUsers()
-  }, [currentPage, appliedSearchTerm, sortColumn, sortDirection])
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value)
-  }
-
-  const handleSearchSubmit = () => {
-    updateUrlQueryParams({ search: searchTerm, page: 1 })
-  }
+  }, [currentPage, sortColumn, sortDirection, filters])
 
   const totalPages = usersData ? Math.ceil(usersData.total / usersData.limit) : 0
 
@@ -106,22 +111,16 @@ export default function UserManagementPage() {
     setSelectedUserIds(newSelectedIds)
   }
 
+  const handleFilterChange = (column: SortableColumn, value: string) => {
+    const newFilters = { ...filters, [column]: value }
+    if (!value) delete newFilters[column]
+    updateUrlQueryParams({ filters: newFilters, page: 1 })
+  }
+
   return (
     <div className="container max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">User Management</h1>
-      {/* TODO: Add Filters and Search Bar here */}
       <div className="mb-4 flex gap-2">
-        <Input
-          type="text"
-          placeholder="Search users (name, email, company)..."
-          value={searchTerm}
-          onChange={handleSearchChange}
-          className="p-2 border-gray-300 md:w-1/3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          onKeyDown={e => e.key === 'Enter' && handleSearchSubmit()}
-        />
-        <Button onClick={handleSearchSubmit} variant="default">
-          Search
-        </Button>
         {selectedUserIds.length > 0 && (
           <Button
             onClick={() => console.log('Add to manufacturer:', selectedUserIds)}
@@ -134,7 +133,6 @@ export default function UserManagementPage() {
       </div>
       {isLoading && <p className="text-blue-500">Loading users...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
-      {/* TODO: Add more advanced Filters here */}
       {usersData && (
         <UserTable
           users={usersData.users}
@@ -143,6 +141,8 @@ export default function UserManagementPage() {
           sortDirection={sortDirection}
           selectedUserIds={selectedUserIds}
           onSelectedUserIdsChange={handleSelectedUserIdsChange}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
       )}
       {usersData && usersData.total > 0 && usersData.total > ITEMS_PER_PAGE && (

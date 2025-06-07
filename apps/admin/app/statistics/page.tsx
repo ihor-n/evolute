@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { fetchUserStatistics } from '@/lib/api'
-import { IUserStatisticsResponse } from '@/types'
+import { type IUserStatisticsResponse } from '@repo/dto'
 import { UserEngagementScoresTable, UserDemographicInsightsTable } from '@/components'
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/components/ui'
 

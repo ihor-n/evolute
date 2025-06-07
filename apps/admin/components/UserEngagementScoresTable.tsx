@@ -42,3 +42,4 @@ export const UserEngagementScoresTable: React.FC<UserEngagementScoresTableProps>
     </section>
   )
 }
+UserEngagementScoresTable.displayName = 'UserEngagementScoresTable'

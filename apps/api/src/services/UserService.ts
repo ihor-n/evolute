@@ -1,8 +1,9 @@
+import mongoose, { type FilterQuery } from 'mongoose'
 import { UserRepository } from '../repositories/UserRepository'
 import { ManufacturerRepository } from '../repositories/ManufacturerRepository'
 import { type IUser } from '../models/User'
 import { type IManufacturer } from '../models/Manufacturer'
-import mongoose, { type FilterQuery } from 'mongoose'
+import { type IUserStatisticsResponse } from '@repo/dto'
 
 export class UserService {
   private userRepository: UserRepository
@@ -76,7 +77,7 @@ export class UserService {
     })
   }
 
-  async getUserStatistics(page: number = 1, limit: number = 10): Promise<any> {
+  async getUserStatistics(page: number = 1, limit: number = 10): Promise<IUserStatisticsResponse> {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     const sevenDaysAgo = new Date()

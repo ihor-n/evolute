@@ -1,16 +1,16 @@
 'use client'
 
 import React from 'react'
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
-import { IUser } from '@/types'
-import { Button, Checkbox } from '@/components/ui'
-
-export type SortDirection = 'asc' | 'desc'
-export type SortableColumn = 'firstName' | 'email' | 'company' | 'status' | 'joinedAt'
+import { type IUser, type UserStatus } from '@repo/dto'
+import { Button, Checkbox, Input, Select, Option } from '@/components/ui'
+import { SortableColumn, SortDirection } from '@/lib/api'
+import { SortIndicator } from '@/components'
 
 interface UserTableProps {
   users: IUser[]
   onSort: (column: SortableColumn) => void
+  filters: Partial<Record<SortableColumn, string>>
+  onFilterChange: (column: SortableColumn, value: string) => void
   sortColumn?: SortableColumn | null
   sortDirection?: SortDirection
   selectedUserIds: string[]
@@ -20,26 +20,16 @@ interface UserTableProps {
 export const UserTable: React.FC<UserTableProps> = ({
   users,
   onSort,
+  filters = {},
+  onFilterChange,
   sortColumn,
   sortDirection,
   selectedUserIds,
   onSelectedUserIdsChange
 }) => {
-  if (users.length === 0) {
-    return <p className="text-gray-500">No users found.</p>
-  }
-
-  const columns = [
-    { key: 'firstName', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'company', label: 'Company' },
-    { key: 'status', label: 'Status' },
-    { key: 'joinedAt', label: 'Joined At' }
-  ]
-
   const handleSelectAllChange = (isChecked: boolean) => {
     if (isChecked) {
-      onSelectedUserIdsChange(users.map(user => user._id))
+      onSelectedUserIdsChange(users.filter(user => !!user).map(user => user._id))
     } else if (!isChecked) {
       onSelectedUserIdsChange([])
     }
@@ -54,10 +44,6 @@ export const UserTable: React.FC<UserTableProps> = ({
   }
   return (
     <section className="mb-8" aria-labelledby="user-table-caption">
-      <p id="user-table-caption" className="sr-only">
-        A table displaying user information including name, email, company, status, and join date. Column headers are
-        sortable.
-      </p>
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full">
           <thead className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
@@ -70,28 +56,111 @@ export const UserTable: React.FC<UserTableProps> = ({
                   aria-label="Select all users on this page"
                 />
               </th>
-              {columns.map(header => (
-                <th key={header.key} className="py-3 px-6 text-left">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort(header.key as SortableColumn)}
-                    className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === header.key ? 'text-blue-600' : ''}`}
-                    aria-label={`Sort by ${header.label}${sortColumn === header.key ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
-                    aria-pressed={sortColumn === header.key}
-                  >
-                    {header.label}
-                    {sortColumn === header.key ? (
-                      sortDirection === 'asc' ? (
-                        <ArrowUp className="ml-2 h-4 w-4" />
-                      ) : (
-                        <ArrowDown className="ml-2 h-4 w-4" />
-                      )
-                    ) : (
-                      <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
-                    )}
-                  </Button>
-                </th>
-              ))}
+              <th className="py-3 px-6 text-left">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('firstName')}
+                  className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === 'firstName' ? 'text-blue-600' : ''}`}
+                  aria-label={`Sort by Name${sortColumn === 'firstName' ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+                  aria-pressed={sortColumn === 'firstName'}
+                >
+                  Name
+                  <SortIndicator columnKey="firstName" activeSortColumn={sortColumn} sortDirection={sortDirection} />
+                </Button>
+              </th>
+              <th className="py-3 px-6 text-left">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('email')}
+                  className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === 'email' ? 'text-blue-600' : ''}`}
+                  aria-label={`Sort by Email${sortColumn === 'email' ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+                  aria-pressed={sortColumn === 'email'}
+                >
+                  Email
+                  <SortIndicator columnKey="email" activeSortColumn={sortColumn} sortDirection={sortDirection} />
+                </Button>
+              </th>
+              <th className="py-3 px-6 text-left">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('company')}
+                  className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === 'company' ? 'text-blue-600' : ''}`}
+                  aria-label={`Sort by Company${sortColumn === 'company' ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+                  aria-pressed={sortColumn === 'company'}
+                >
+                  Company
+                  <SortIndicator columnKey="company" activeSortColumn={sortColumn} sortDirection={sortDirection} />
+                </Button>
+              </th>
+              <th className="py-3 px-6 text-left">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('status')}
+                  className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === 'status' ? 'text-blue-600' : ''}`}
+                  aria-label={`Sort by Status${sortColumn === 'status' ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+                  aria-pressed={sortColumn === 'status'}
+                >
+                  Status
+                  <SortIndicator columnKey="status" activeSortColumn={sortColumn} sortDirection={sortDirection} />
+                </Button>
+              </th>
+              <th className="py-3 px-6 text-left">
+                <Button
+                  variant="ghost"
+                  onClick={() => onSort('joinedAt')}
+                  className={`px-0 py-0 h-auto hover:bg-gray-300 ${sortColumn === 'joinedAt' ? 'text-blue-600' : ''}`}
+                  aria-label={`Sort by Joined At${sortColumn === 'joinedAt' ? ` (${sortDirection === 'asc' ? 'ascending' : 'descending'})` : ''}`}
+                  aria-pressed={sortColumn === 'joinedAt'}
+                >
+                  Joined At
+                  <SortIndicator columnKey="joinedAt" activeSortColumn={sortColumn} sortDirection={sortDirection} />
+                </Button>
+              </th>
+            </tr>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="py-2 px-6"></th>
+              <th className="py-2 px-6 text-left">
+                <Input
+                  type="text"
+                  placeholder="Filter Name..."
+                  value={filters.firstName || ''}
+                  onChange={e => onFilterChange('firstName', e.target.value)}
+                  aria-label="Filter by Name"
+                />
+              </th>
+              <th className="py-2 px-6 text-left">
+                <Input
+                  type="text"
+                  placeholder="Filter Email..."
+                  value={filters.email || ''}
+                  onChange={e => onFilterChange('email', e.target.value)}
+                  aria-label="Filter by Email"
+                />
+              </th>
+              <th className="py-2 px-6 text-left">
+                <Input
+                  type="text"
+                  placeholder="Filter Company..."
+                  value={filters.company || ''}
+                  onChange={e => onFilterChange('company', e.target.value)}
+                  aria-label="Filter by Company"
+                />
+              </th>
+              <th className="py-2 px-6 text-left">
+                <Select
+                  value={filters.status || ''}
+                  onChange={e => onFilterChange('status', e.target.value)}
+                  aria-label="Filter by Status"
+                >
+                  <Option value="">All</Option>
+                  {(['active', 'inactive'] as UserStatus[]).map(optVal => (
+                    <Option key={optVal} value={optVal}>
+                      {optVal.charAt(0).toUpperCase() + optVal.slice(1)}
+                    </Option>
+                  ))}
+                </Select>
+              </th>
+              <th className="py-2 px-6 text-left"></th>
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
@@ -126,3 +195,4 @@ export const UserTable: React.FC<UserTableProps> = ({
     </section>
   )
 }
+UserTable.displayName = 'UserTable'
