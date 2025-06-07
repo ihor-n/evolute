@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { UserTable } from '@/components/UserTable'
 import { fetchUsers, SortDirection, SortableColumn } from '@/lib/api'
 import { IUsersApiResponse } from '@/types'
@@ -14,6 +14,7 @@ import {
   Input,
   Button
 } from '@/components/ui'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 10
 
@@ -22,11 +23,45 @@ export default function UserManagementPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState('') // For the input field
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState<SortableColumn | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-  // TODO: Add state for more advanced filters
+
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const search = searchParams.get('search') || ''
+    const sortCol = searchParams.get('sort') as SortableColumn | null
+    const sortDir = (searchParams.get('order') as SortDirection) || 'asc'
+
+    setCurrentPage(page)
+    setSearchTerm(search)
+    setAppliedSearchTerm(search)
+    setSortColumn(sortCol)
+    setSortDirection(sortDir)
+  }, [searchParams])
+
+  const updateUrlQueryParams = useCallback(
+    (params: { page?: number; search?: string; sort?: SortableColumn | null; order?: SortDirection }) => {
+      const newParams = new URLSearchParams(searchParams.toString())
+      if (params.page !== undefined) newParams.set('page', String(params.page))
+      if (params.search !== undefined) {
+        if (params.search) newParams.set('search', params.search)
+        else newParams.delete('search')
+      }
+      if (params.sort !== undefined) {
+        if (params.sort) newParams.set('sort', params.sort)
+        else newParams.delete('sort')
+      }
+      if (params.order !== undefined) newParams.set('order', params.order)
+
+      router.push(`?${newParams.toString()}`, { scroll: false })
+    },
+    [router, searchParams]
+  )
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -45,42 +80,30 @@ export default function UserManagementPage() {
     loadUsers()
   }, [currentPage, appliedSearchTerm, sortColumn, sortDirection])
 
-  const handleSearchSubmit = () => {
-    setAppliedSearchTerm(searchTerm)
-    setCurrentPage(1)
-  }
-
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value)
   }
 
+  const handleSearchSubmit = () => {
+    updateUrlQueryParams({ search: searchTerm, page: 1 })
+  }
+
   const totalPages = usersData ? Math.ceil(usersData.total / usersData.limit) : 0
 
-  const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1))
-  }
-
-  const handleNextPage = () => {
-    if (usersData && currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1)
-    }
-  }
-
   const handleSort = (column: SortableColumn) => {
+    let newSortDirection: SortDirection = 'asc'
     if (sortColumn === column) {
-      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+      newSortDirection = sortDirection === 'asc' ? 'desc' : 'asc'
     } else {
-      setSortColumn(column)
-      setSortDirection('asc')
+      newSortDirection = 'asc'
     }
+    updateUrlQueryParams({ sort: column, order: newSortDirection, page: 1 })
   }
 
   return (
     <div className="container max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">User Management</h1>
       {/* TODO: Add Filters and Search Bar here */}
-      {isLoading && <p className="text-blue-500">Loading users...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
       <div className="mb-4 flex gap-2">
         <Input
           type="text"
@@ -94,6 +117,8 @@ export default function UserManagementPage() {
           Search
         </Button>
       </div>
+      {isLoading && <p className="text-blue-500">Loading users...</p>}
+      {error && <p className="text-red-500">Error: {error}</p>}
       {/* TODO: Add more advanced Filters here */}
       {usersData && (
         <UserTable users={usersData.users} onSort={handleSort} sortColumn={sortColumn} sortDirection={sortDirection} />
@@ -103,23 +128,26 @@ export default function UserManagementPage() {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                onClick={handlePreviousPage}
-                href="#" // Add href prop
-                // The 'href' is typically for navigation, but onClick handles state change.
-                // For non-navigation, ensure it's clear this is an action.
-                // Consider disabling via className if `disabled` prop isn't directly supported or styled by default.
+                href={
+                  currentPage > 1
+                    ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentPage - 1) })}`
+                    : '#'
+                }
                 className={currentPage === 1 || isLoading ? 'pointer-events-none opacity-50' : ''}
               />
             </PaginationItem>
             <PaginationItem>
               <span className="px-4 py-2 text-sm text-gray-700">
-                Page {usersData.page} of {totalPages} (Total: {usersData.total} users)
+                Page {currentPage} of {totalPages} (Total: {usersData.total} users)
               </span>
             </PaginationItem>
             <PaginationItem>
               <PaginationNext
-                onClick={handleNextPage}
-                href="#" // Add href prop
+                href={
+                  currentPage < totalPages
+                    ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentPage + 1) })}`
+                    : '#'
+                }
                 className={
                   currentPage === totalPages || isLoading || totalPages === 0 ? 'pointer-events-none opacity-50' : ''
                 }

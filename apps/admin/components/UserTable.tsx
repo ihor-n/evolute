@@ -3,7 +3,7 @@
 import React from 'react'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { IUser } from '@/types'
-import { Button } from './ui/button'
+import { Button } from '@/components/ui'
 
 export type SortDirection = 'asc' | 'desc'
 export type SortableColumn = 'firstName' | 'email' | 'company' | 'status' | 'joinedAt'
