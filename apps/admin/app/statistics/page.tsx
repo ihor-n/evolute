@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { fetchUserStatistics } from '@/lib/api'
 import { IUserStatisticsResponse } from '@/types'
 import { UserEngagementScoresTable, UserDemographicInsightsTable } from '@/components'
@@ -9,6 +10,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, Pagi
 const SCORES_PER_PAGE = 10
 
 export default function StatisticsPage() {
+  const searchParams = useSearchParams()
+
   const [statistics, setStatistics] = useState<IUserStatisticsResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,22 +31,22 @@ export default function StatisticsPage() {
   }, [])
 
   useEffect(() => {
-    loadStatistics(currentScoresPage)
+    const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
+    if (!isNaN(pageFromUrl) && pageFromUrl > 0) {
+      setCurrentScoresPage(pageFromUrl)
+    } else {
+      setCurrentScoresPage(1)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (currentScoresPage > 0) {
+      loadStatistics(currentScoresPage)
+    }
   }, [currentScoresPage, loadStatistics])
 
   const paginatedScores = statistics?.usersWithScores || []
-
   const totalScoresPages = statistics?.totalUsers ? Math.ceil(statistics.totalUsers / SCORES_PER_PAGE) : 0
-
-  const handleScoresPreviousPage = () => {
-    setCurrentScoresPage(prev => Math.max(prev - 1, 1))
-  }
-
-  const handleScoresNextPage = () => {
-    if (currentScoresPage < totalScoresPages) {
-      setCurrentScoresPage(prev => prev + 1)
-    }
-  }
 
   return (
     <div className="container max-w-7xl mx-auto p-4">
@@ -59,9 +62,12 @@ export default function StatisticsPage() {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={handleScoresPreviousPage}
-                    href="#"
-                    className={currentScoresPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    href={
+                      currentScoresPage > 1
+                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentScoresPage - 1) }).toString()}`
+                        : '#'
+                    }
+                    className={currentScoresPage === 1 || isLoading ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
                 <PaginationItem>
@@ -71,9 +77,16 @@ export default function StatisticsPage() {
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
-                    onClick={handleScoresNextPage}
-                    href="#"
-                    className={currentScoresPage === totalScoresPages ? 'pointer-events-none opacity-50' : ''}
+                    href={
+                      currentScoresPage < totalScoresPages
+                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentScoresPage + 1) }).toString()}`
+                        : '#'
+                    }
+                    className={
+                      currentScoresPage === totalScoresPages || isLoading || totalScoresPages === 0
+                        ? 'pointer-events-none opacity-50'
+                        : ''
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>

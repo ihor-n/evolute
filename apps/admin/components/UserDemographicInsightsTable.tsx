@@ -13,7 +13,7 @@ export const UserDemographicInsightsTable: React.FC<UserDemographicInsightsTable
   }
 
   return (
-    <section className="mb-8">
+    <section>
       <h2 className="text-2xl font-semibold mb-4 text-gray-700">Demographic Insights</h2>
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full">

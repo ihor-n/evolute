@@ -21,6 +21,14 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn,
     return <p className="text-gray-500">No users found.</p>
   }
 
+  const columns = [
+    { key: 'firstName', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'company', label: 'Company' },
+    { key: 'status', label: 'Status' },
+    { key: 'joinedAt', label: 'Joined At' }
+  ]
+
   return (
     <section className="mb-8" aria-labelledby="user-table-caption">
       <p id="user-table-caption" className="sr-only">
@@ -32,13 +40,7 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn,
           <thead className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <tr>
               {/* TODO: Add checkbox for multi-select header here */}
-              {[
-                { key: 'firstName', label: 'Name' },
-                { key: 'email', label: 'Email' },
-                { key: 'company', label: 'Company' },
-                { key: 'status', label: 'Status' },
-                { key: 'joinedAt', label: 'Joined At' }
-              ].map(header => (
+              {columns.map(header => (
                 <th key={header.key} className="py-3 px-6 text-left">
                   <Button
                     variant="ghost"

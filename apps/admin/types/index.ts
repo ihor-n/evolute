@@ -1,6 +1,3 @@
-// Mirroring backend IUser for frontend usage
-// We can pick only the fields needed for display or interaction
-
 export interface IExperience {
   yearsInIndustry: number
   expertise: string[]
