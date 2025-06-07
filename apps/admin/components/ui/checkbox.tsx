@@ -55,7 +55,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           defaultChecked={!isControlled ? defaultChecked : undefined}
           onChange={handleChange}
           disabled={disabled}
-          className={cn('peer sr-only', inputClassName)}
+          className={cn('hidden', inputClassName)}
           {...props}
         />
         <label
@@ -63,7 +63,6 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           className={cn(
             'flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-sm border transition-colors',
             'border-slate-300 ring-offset-white',
-            'peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-slate-400 peer-focus-visible:ring-offset-2',
             disabled ? 'cursor-not-allowed opacity-50' : '',
             currentChecked ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-transparent',
             labelClassName
