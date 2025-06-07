@@ -14,23 +14,40 @@ export class UserService {
   }
 
   async getUsers(
-    filters: Record<string, any>,
+    filters: Record<string, unknown>,
     search: string | undefined,
     page: number,
     limit: number,
     sort?: string,
     order?: 'asc' | 'desc'
   ): Promise<{ users: IUser[]; total: number; page: number; limit: number }> {
-    const query: FilterQuery<IUser> = { ...filters }
+    const query: FilterQuery<IUser> = {}
+    const regexFilterColumns: string[] = ['firstName', 'email', 'company']
 
-    if (search) {
+    for (const key in filters) {
+      if (Object.prototype.hasOwnProperty.call(filters, key)) {
+        const value = filters[key]
+        if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+          continue
+        }
+
+        if (regexFilterColumns.includes(key) && typeof value === 'string') {
+          query[key as keyof IUser] = { $regex: value.trim(), $options: 'i' }
+        } else {
+          query[key as keyof IUser] = value
+        }
+      }
+    }
+
+    if (search && search.trim() !== '') {
+      const trimmedSearch = search.trim()
       query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { company: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } },
-        { jobTitle: { $regex: search, $options: 'i' } }
+        { firstName: { $regex: trimmedSearch, $options: 'i' } },
+        { lastName: { $regex: trimmedSearch, $options: 'i' } },
+        { email: { $regex: trimmedSearch, $options: 'i' } },
+        { company: { $regex: trimmedSearch, $options: 'i' } },
+        { department: { $regex: trimmedSearch, $options: 'i' } },
+        { jobTitle: { $regex: trimmedSearch, $options: 'i' } }
       ]
     }
 
