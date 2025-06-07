@@ -38,6 +38,7 @@ export default function StatisticsPage() {
         setStatistics(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
+        setStatistics(null)
       } finally {
         setIsLoading(false)
       }
