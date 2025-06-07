@@ -1,18 +1,19 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { UserTable } from '../components/UserTable'
-import { fetchUsers, SortDirection, SortableColumn } from '../lib/api'
-import { IUsersApiResponse } from '../types'
+import { UserTable } from '@/components/UserTable'
+import { fetchUsers, SortDirection, SortableColumn } from '@/lib/api'
+import { IUsersApiResponse } from '@/types'
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationPrevious,
-  PaginationNext
+  PaginationNext,
   // PaginationEllipsis
-} from '@/components/ui/pagination'
-import { Input } from '@/components/ui/input'
+  Input,
+  Button
+} from '@/components/ui'
 
 const ITEMS_PER_PAGE = 10
 
@@ -22,26 +23,17 @@ export default function UserManagementPage() {
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState<SortableColumn | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   // TODO: Add state for more advanced filters
-
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm)
-    }, 500)
-    return () => {
-      clearTimeout(timerId)
-    }
-  }, [searchTerm])
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setIsLoading(true)
         setError(null)
-        const data = await fetchUsers(currentPage, ITEMS_PER_PAGE, debouncedSearchTerm, sortColumn, sortDirection)
+        const data = await fetchUsers(currentPage, ITEMS_PER_PAGE, appliedSearchTerm, sortColumn, sortDirection)
         setUsersData(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
@@ -51,11 +43,15 @@ export default function UserManagementPage() {
       }
     }
     loadUsers()
-  }, [currentPage, debouncedSearchTerm, sortColumn, sortDirection])
+  }, [currentPage, appliedSearchTerm, sortColumn, sortDirection])
+
+  const handleSearchSubmit = () => {
+    setAppliedSearchTerm(searchTerm)
+    setCurrentPage(1)
+  }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value)
-    setCurrentPage(1)
   }
 
   const totalPages = usersData ? Math.ceil(usersData.total / usersData.limit) : 0
@@ -85,17 +81,19 @@ export default function UserManagementPage() {
       {/* TODO: Add Filters and Search Bar here */}
       {isLoading && <p className="text-blue-500">Loading users...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
-      {usersData && (
-        <div className="mb-4">
-          <Input
-            type="text"
-            placeholder="Search users (name, email, company)..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="p-2 border-gray-300 md:w-1/3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-      )}
+      <div className="mb-4 flex gap-2">
+        <Input
+          type="text"
+          placeholder="Search users (name, email, company)..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="p-2 border-gray-300 md:w-1/3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          onKeyDown={e => e.key === 'Enter' && handleSearchSubmit()}
+        />
+        <Button onClick={handleSearchSubmit} variant="default">
+          Search
+        </Button>
+      </div>
       {/* TODO: Add more advanced Filters here */}
       {usersData && (
         <UserTable users={usersData.users} onSort={handleSort} sortColumn={sortColumn} sortDirection={sortDirection} />
