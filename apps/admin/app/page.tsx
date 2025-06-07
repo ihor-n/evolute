@@ -25,6 +25,7 @@ export default function UserManagementPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [filters, setFilters] = useState<Partial<Record<SortableColumn, string>>>({})
+  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -46,6 +47,7 @@ export default function UserManagementPage() {
     setSortDirection(sortDir)
     setSelectedUserIds([])
     setFilters(currentFilters)
+    setIsInitialSyncComplete(true)
   }, [searchParams])
 
   const updateUrlQueryParams = useCallback(
@@ -79,6 +81,10 @@ export default function UserManagementPage() {
 
   useEffect(() => {
     const loadUsers = async () => {
+      if (!isInitialSyncComplete) {
+        return
+      }
+
       try {
         setIsLoading(true)
         setError(null)
@@ -92,8 +98,9 @@ export default function UserManagementPage() {
         setIsLoading(false)
       }
     }
+
     loadUsers()
-  }, [currentPage, sortColumn, sortDirection, filters])
+  }, [isInitialSyncComplete, currentPage, sortColumn, sortDirection, filters])
 
   const totalPages = usersData ? Math.ceil(usersData.total / usersData.limit) : 0
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { fetchUserStatistics } from '@/lib/api'
 import { type IUserStatisticsResponse } from '@repo/dto'
@@ -15,35 +15,36 @@ export default function StatisticsPage() {
   const [statistics, setStatistics] = useState<IUserStatisticsResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentScoresPage, setCurrentScoresPage] = useState(1)
-
-  const loadStatistics = useCallback(async (pageToLoad: number) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const data = await fetchUserStatistics(pageToLoad, SCORES_PER_PAGE)
-      setStatistics(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false)
 
   useEffect(() => {
-    const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
-    if (!isNaN(pageFromUrl) && pageFromUrl > 0) {
-      setCurrentScoresPage(pageFromUrl)
-    } else {
-      setCurrentScoresPage(1)
-    }
+    const page = parseInt(searchParams.get('page') || '1', 10)
+
+    setCurrentPage(page)
+    setIsInitialSyncComplete(true)
   }, [searchParams])
 
   useEffect(() => {
-    if (currentScoresPage > 0) {
-      loadStatistics(currentScoresPage)
+    const loadStatistics = async () => {
+      if (!isInitialSyncComplete) {
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        setError(null)
+        const data = await fetchUserStatistics(currentPage, SCORES_PER_PAGE)
+        setStatistics(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [currentScoresPage, loadStatistics])
+
+    loadStatistics()
+  }, [currentPage, isInitialSyncComplete])
 
   const paginatedScores = statistics?.usersWithScores || []
   const totalScoresPages = statistics?.totalUsers ? Math.ceil(statistics.totalUsers / SCORES_PER_PAGE) : 0
@@ -63,27 +64,27 @@ export default function StatisticsPage() {
                 <PaginationItem>
                   <PaginationPrevious
                     href={
-                      currentScoresPage > 1
-                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentScoresPage - 1) }).toString()}`
+                      currentPage > 1
+                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentPage - 1) }).toString()}`
                         : '#'
                     }
-                    className={currentScoresPage === 1 || isLoading ? 'pointer-events-none opacity-50' : ''}
+                    className={currentPage === 1 || isLoading ? 'pointer-events-none opacity-50' : ''}
                   />
                 </PaginationItem>
                 <PaginationItem>
                   <span className="px-4 py-2 text-sm text-gray-700">
-                    Page {currentScoresPage} of {totalScoresPages}
+                    Page {currentPage} of {totalScoresPages}
                   </span>
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
                     href={
-                      currentScoresPage < totalScoresPages
-                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentScoresPage + 1) }).toString()}`
+                      currentPage < totalScoresPages
+                        ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentPage + 1) }).toString()}`
                         : '#'
                     }
                     className={
-                      currentScoresPage === totalScoresPages || isLoading || totalScoresPages === 0
+                      currentPage === totalScoresPages || isLoading || totalScoresPages === 0
                         ? 'pointer-events-none opacity-50'
                         : ''
                     }
