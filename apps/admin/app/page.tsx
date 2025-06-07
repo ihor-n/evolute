@@ -97,7 +97,7 @@ export default function UserManagementPage() {
     } else {
       newSortDirection = 'asc'
     }
-    updateUrlQueryParams({ sort: column, order: newSortDirection, page: 1 })
+    updateUrlQueryParams({ sort: column, order: newSortDirection })
   }
 
   return (
@@ -123,7 +123,7 @@ export default function UserManagementPage() {
       {usersData && (
         <UserTable users={usersData.users} onSort={handleSort} sortColumn={sortColumn} sortDirection={sortDirection} />
       )}
-      {usersData && usersData.total > 0 && (
+      {usersData && usersData.total > 0 && usersData.total > ITEMS_PER_PAGE && (
         <Pagination className="mt-6">
           <PaginationContent>
             <PaginationItem>
@@ -138,7 +138,7 @@ export default function UserManagementPage() {
             </PaginationItem>
             <PaginationItem>
               <span className="px-4 py-2 text-sm text-gray-700">
-                Page {currentPage} of {totalPages} (Total: {usersData.total} users)
+                Page {currentPage} of {totalPages}
               </span>
             </PaginationItem>
             <PaginationItem>

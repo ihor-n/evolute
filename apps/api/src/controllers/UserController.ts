@@ -25,9 +25,13 @@ export class UserController {
 
   async getUserStatistics(req: Request, res: Response): Promise<void> {
     try {
-      const statistics = await userService.getUserStatistics()
-      res.json(statistics[0]) // The aggregation returns an array with one element
+      const page = parseInt(req.query.page as string) || 1
+      const limit = parseInt(req.query.limit as string) || 10
+
+      const statistics = await userService.getUserStatistics(page, limit)
+      res.json(statistics)
     } catch (error) {
+      console.error('Error in getUserStatistics controller:', error)
       res.status(500).json({ message: 'Error fetching user statistics', error: (error as Error).message })
     }
   }

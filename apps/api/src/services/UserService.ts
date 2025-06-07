@@ -43,7 +43,6 @@ export class UserService {
     userIds: string[],
     manufacturerData: Omit<Partial<IManufacturer>, 'userIds'>
   ): Promise<IManufacturer> {
-    // Optionally, validate if users exist
     // const users = await this.userRepository.findByIds(userIds);
     // if (users.length !== userIds.length) {
     //   throw new Error('One or more users not found');
@@ -56,20 +55,15 @@ export class UserService {
     })
   }
 
-  async getUserStatistics(): Promise<any> {
+  async getUserStatistics(page: number = 1, limit: number = 10): Promise<any> {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
     const ninetyDaysAgo = new Date()
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
-
-    const pipeline = [
-      // Optional: Add an early $match stage to filter documents if needed.
-      // This can significantly improve performance if you're only interested in a subset of users.
-      // Example: Match only active users.
+    const pipeline: mongoose.PipelineStage[] = [
       // { $match: { status: 'active' } },
-
       {
         $addFields: {
           responseRateScore: { $multiply: [{ $ifNull: ['$participation.responseRate', 0] }, 20] },
@@ -123,7 +117,10 @@ export class UserService {
           usersWithScores: [
             {
               $project: { firstName: 1, lastName: 1, email: 1, engagementScore: 1, engagementLevel: 1, demographics: 1 }
-            }
+            },
+            // { $sort: { engagementScore: -1 } },
+            { $skip: (page - 1) * limit },
+            { $limit: limit }
           ],
           demographicInsights: [
             {
@@ -173,11 +170,24 @@ export class UserService {
               }
             },
             { $project: { engagementLevels: 0 } } // Remove the temporary array
-          ]
+          ],
+          totalUsers: [{ $count: 'count' }]
         }
       }
     ]
 
-    return this.userRepository.aggregate(pipeline)
+    const result = await this.userRepository.aggregate(pipeline)
+
+    if (result && result.length > 0) {
+      const data = result[0]
+      return {
+        usersWithScores: data.usersWithScores || [],
+        demographicInsights: data.demographicInsights || [],
+        totalUsers: data.totalUsers && data.totalUsers.length > 0 ? data.totalUsers[0].count : 0,
+        page,
+        limit
+      }
+    }
+    return { usersWithScores: [], demographicInsights: [], totalUsers: 0, page, limit }
   }
 }

@@ -29,8 +29,12 @@ export async function fetchUsers(
   return response.json()
 }
 
-export async function fetchUserStatistics(): Promise<IUserStatisticsResponse> {
-  const response = await fetch(`${API_BASE_URL}/users/statistics`)
+export async function fetchUserStatistics(page: number = 1, limit: number = 10): Promise<IUserStatisticsResponse> {
+  const queryParams = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  })
+  const response = await fetch(`${API_BASE_URL}/users/statistics?${queryParams.toString()}`)
   if (!response.ok) {
     throw new Error('Failed to fetch user statistics')
   }

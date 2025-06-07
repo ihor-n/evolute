@@ -125,4 +125,7 @@ export interface IDemographicInsight {
 export interface IUserStatisticsResponse {
   usersWithScores: IUserWithScore[]
   demographicInsights: IDemographicInsight[]
+  totalUsers: number
+  page: number
+  limit: number
 }
