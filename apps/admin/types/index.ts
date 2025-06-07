@@ -86,7 +86,7 @@ export interface IUser {
   address?: IAddress
   joinedAt: string // Date as string
   lastActive?: string // Date as string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   createdAt?: string
   updatedAt?: string
 }

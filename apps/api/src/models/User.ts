@@ -12,11 +12,20 @@ interface IPreferences {
   communicationChannel: string
 }
 
-interface IDemographics {
+export interface IDemographics {
   ageRange: string
   gender: string
   education: string
 }
+
+const DemographicsSchema: Schema = new Schema<IDemographics>(
+  {
+    ageRange: { type: String },
+    gender: { type: String },
+    education: { type: String }
+  },
+  { _id: false }
+)
 
 interface IWorkHistory {
   currentPosition: string
@@ -103,7 +112,7 @@ const UserSchema: Schema = new Schema(
     jobTitle: String,
     experience: Schema.Types.Mixed,
     preferences: Schema.Types.Mixed,
-    demographics: Schema.Types.Mixed,
+    demographics: DemographicsSchema,
     workHistory: Schema.Types.Mixed,
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     participation: Schema.Types.Mixed,

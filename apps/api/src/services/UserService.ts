@@ -43,15 +43,19 @@ export class UserService {
     userIds: string[],
     manufacturerData: Omit<Partial<IManufacturer>, 'userIds'>
   ): Promise<IManufacturer> {
-    // const users = await this.userRepository.findByIds(userIds);
-    // if (users.length !== userIds.length) {
-    //   throw new Error('One or more users not found');
-    // }
+    if (!userIds || userIds.length === 0) {
+      throw new Error('User IDs must be provided to add to a new manufacturer.')
+    }
+    const users = await this.userRepository.findByIds(userIds)
+    if (users.length !== userIds.length) {
+      const foundUserIds = users.map(user => user._id.toString())
+      const notFoundIds = userIds.filter(id => !foundUserIds.includes(id))
+      throw new Error(`One or more users not found: ${notFoundIds.join(', ')}. Please provide valid user IDs.`)
+    }
 
-    const objectUserIds = userIds.map(id => new mongoose.Types.ObjectId(id))
     return await this.manufacturerRepository.create({
       ...manufacturerData,
-      userIds: objectUserIds
+      userIds: users.map(user => user._id)
     })
   }
 

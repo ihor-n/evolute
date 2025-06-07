@@ -10,7 +10,6 @@ import {
   PaginationItem,
   PaginationPrevious,
   PaginationNext,
-  // PaginationEllipsis
   Input,
   Button
 } from '@/components/ui'
@@ -23,10 +22,11 @@ export default function UserManagementPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchTerm, setSearchTerm] = useState('') // For the input field
+  const [searchTerm, setSearchTerm] = useState('')
   const [appliedSearchTerm, setAppliedSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState<SortableColumn | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -42,6 +42,7 @@ export default function UserManagementPage() {
     setAppliedSearchTerm(search)
     setSortColumn(sortCol)
     setSortDirection(sortDir)
+    setSelectedUserIds([])
   }, [searchParams])
 
   const updateUrlQueryParams = useCallback(
@@ -74,6 +75,7 @@ export default function UserManagementPage() {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
         setUsersData(null)
       } finally {
+        setSelectedUserIds([])
         setIsLoading(false)
       }
     }
@@ -100,6 +102,10 @@ export default function UserManagementPage() {
     updateUrlQueryParams({ sort: column, order: newSortDirection })
   }
 
+  const handleSelectedUserIdsChange = (newSelectedIds: string[]) => {
+    setSelectedUserIds(newSelectedIds)
+  }
+
   return (
     <div className="container max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">User Management</h1>
@@ -116,12 +122,28 @@ export default function UserManagementPage() {
         <Button onClick={handleSearchSubmit} variant="default">
           Search
         </Button>
+        {selectedUserIds.length > 0 && (
+          <Button
+            onClick={() => console.log('Add to manufacturer:', selectedUserIds)}
+            variant="secondary"
+            className="ml-auto"
+          >
+            Add {selectedUserIds.length} User(s) to Manufacturer
+          </Button>
+        )}
       </div>
       {isLoading && <p className="text-blue-500">Loading users...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       {/* TODO: Add more advanced Filters here */}
       {usersData && (
-        <UserTable users={usersData.users} onSort={handleSort} sortColumn={sortColumn} sortDirection={sortDirection} />
+        <UserTable
+          users={usersData.users}
+          onSort={handleSort}
+          sortColumn={sortColumn}
+          sortDirection={sortDirection}
+          selectedUserIds={selectedUserIds}
+          onSelectedUserIdsChange={handleSelectedUserIdsChange}
+        />
       )}
       {usersData && usersData.total > 0 && usersData.total > ITEMS_PER_PAGE && (
         <Pagination className="mt-6">
@@ -156,7 +178,6 @@ export default function UserManagementPage() {
           </PaginationContent>
         </Pagination>
       )}
-      {/* TODO: Add "Add to Manufacturer" button/modal trigger here */}
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import React from 'react'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { IUser } from '@/types'
-import { Button } from '@/components/ui'
+import { Button, Checkbox } from '@/components/ui'
 
 export type SortDirection = 'asc' | 'desc'
 export type SortableColumn = 'firstName' | 'email' | 'company' | 'status' | 'joinedAt'
@@ -13,10 +13,18 @@ interface UserTableProps {
   onSort: (column: SortableColumn) => void
   sortColumn?: SortableColumn | null
   sortDirection?: SortDirection
-  // TODO: Add props for filtering, selection
+  selectedUserIds: string[]
+  onSelectedUserIdsChange: (selectedIds: string[]) => void
 }
 
-export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn, sortDirection }) => {
+export const UserTable: React.FC<UserTableProps> = ({
+  users,
+  onSort,
+  sortColumn,
+  sortDirection,
+  selectedUserIds,
+  onSelectedUserIdsChange
+}) => {
   if (users.length === 0) {
     return <p className="text-gray-500">No users found.</p>
   }
@@ -29,6 +37,21 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn,
     { key: 'joinedAt', label: 'Joined At' }
   ]
 
+  const handleSelectAllChange = (isChecked: boolean) => {
+    if (isChecked) {
+      onSelectedUserIdsChange(users.map(user => user._id))
+    } else if (!isChecked) {
+      onSelectedUserIdsChange([])
+    }
+  }
+
+  const handleSelectRow = (userId: string, checked: boolean) => {
+    if (checked) {
+      onSelectedUserIdsChange([...selectedUserIds, userId])
+    } else {
+      onSelectedUserIdsChange(selectedUserIds.filter(id => id !== userId))
+    }
+  }
   return (
     <section className="mb-8" aria-labelledby="user-table-caption">
       <p id="user-table-caption" className="sr-only">
@@ -39,7 +62,14 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn,
         <table className="min-w-full">
           <thead className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
             <tr>
-              {/* TODO: Add checkbox for multi-select header here */}
+              <th className="py-3 px-6 text-left">
+                <Checkbox
+                  id="select-all-users"
+                  onCheckedChange={handleSelectAllChange}
+                  checked={users.length > 0 && selectedUserIds.length === users.length}
+                  aria-label="Select all users on this page"
+                />
+              </th>
               {columns.map(header => (
                 <th key={header.key} className="py-3 px-6 text-left">
                   <Button
@@ -67,7 +97,14 @@ export const UserTable: React.FC<UserTableProps> = ({ users, onSort, sortColumn,
           <tbody className="text-gray-600 text-sm font-light">
             {users.map(user => (
               <tr key={user._id} className="border-b border-gray-200 hover:bg-gray-100">
-                {/* TODO: Add checkbox for row selection here */}
+                <td className="py-3 px-6 text-left">
+                  <Checkbox
+                    id={`select-user-${user._id}`}
+                    checked={selectedUserIds.includes(user._id)}
+                    onCheckedChange={checked => handleSelectRow(user._id, !!checked)}
+                    aria-label={`Select user ${user.firstName} ${user.lastName}`}
+                  />
+                </td>
                 <td className="py-3 px-6 text-left whitespace-nowrap">
                   {user.firstName} {user.lastName}
                 </td>
