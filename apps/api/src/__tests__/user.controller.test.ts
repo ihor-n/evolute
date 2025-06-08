@@ -4,7 +4,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals'
 import { createServer } from '@/src/server'
 import { UserService as ActualUserService } from '@/src/api/services/UserService'
 import { type IUser } from '@/src/core/models/User'
-import { type GetFilters } from '@/src/api/services/UserService'
+import { type GetFilters } from '@repo/dto'
 
 jest.mock('@/src/api/services/UserService')
 

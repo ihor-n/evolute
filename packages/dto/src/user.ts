@@ -106,3 +106,13 @@ export interface IUserSummaryForManufacturer {
   lastName: string
   email: string
 }
+
+export interface GetFilters {
+  firstName?: string
+  lastName?: string
+  email?: string
+  company?: string
+  department?: string
+  jobTitle?: string
+  status?: UserStatus
+}
