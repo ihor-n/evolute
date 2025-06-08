@@ -2,8 +2,8 @@ import bodyParser from 'body-parser'
 import express, { type Express } from 'express'
 import morgan from 'morgan'
 import cors from 'cors'
-import routes from './routes'
-import { errorHandler } from './middleware/errorHandler'
+import routes from '@/src/routes'
+import { errorHandler } from '@/src/middleware/errorHandler'
 
 export const createServer = (): Express => {
   const app = express()
