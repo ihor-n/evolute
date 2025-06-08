@@ -12,11 +12,11 @@ const SCORES_PER_PAGE = 10
 export default function StatisticsPage() {
   const searchParams = useSearchParams()
 
-  const [statistics, setStatistics] = useState<IUserStatisticsResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [data, setData] = useState<IUserStatisticsResponse | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState<boolean>(false)
 
   useEffect(() => {
     const page = parseInt(searchParams.get('page') || '1', 10)
@@ -35,10 +35,10 @@ export default function StatisticsPage() {
         setIsLoading(true)
         setError(null)
         const data = await fetchUserStatistics(currentPage, SCORES_PER_PAGE)
-        setStatistics(data)
+        setData(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
-        setStatistics(null)
+        setData(null)
       } finally {
         setIsLoading(false)
       }
@@ -47,8 +47,8 @@ export default function StatisticsPage() {
     loadStatistics()
   }, [currentPage, isInitialSyncComplete])
 
-  const paginatedScores = statistics?.usersWithScores || []
-  const totalScoresPages = statistics?.totalUsers ? Math.ceil(statistics.totalUsers / SCORES_PER_PAGE) : 0
+  const paginatedScores = data?.usersWithScores || []
+  const totalPages = data?.totalUsers ? Math.ceil(data.totalUsers / SCORES_PER_PAGE) : 0
 
   return (
     <div className="container max-w-7xl mx-auto p-4">
@@ -56,10 +56,10 @@ export default function StatisticsPage() {
       {isLoading && <p className="text-blue-500 p-4">Loading statistics...</p>}
       {error && <p className="text-red-500 p-4">Error: {error}</p>}
 
-      {statistics && statistics.totalUsers > 0 && (
+      {data && data.totalUsers > 0 && (
         <>
           <UserEngagementScoresTable users={paginatedScores} />
-          {totalScoresPages > 1 && (
+          {totalPages > 1 && (
             <Pagination className="mt-6">
               <PaginationContent>
                 <PaginationItem>
@@ -74,18 +74,18 @@ export default function StatisticsPage() {
                 </PaginationItem>
                 <PaginationItem>
                   <span className="px-4 py-2 text-sm text-gray-700">
-                    Page {currentPage} of {totalScoresPages}
+                    Page {currentPage} of {totalPages}
                   </span>
                 </PaginationItem>
                 <PaginationItem>
                   <PaginationNext
                     href={
-                      currentPage < totalScoresPages
+                      currentPage < totalPages
                         ? `?${new URLSearchParams({ ...Object.fromEntries(searchParams), page: String(currentPage + 1) }).toString()}`
                         : '#'
                     }
                     className={
-                      currentPage === totalScoresPages || isLoading || totalScoresPages === 0
+                      currentPage === totalPages || isLoading || totalPages === 0
                         ? 'pointer-events-none opacity-50'
                         : ''
                     }
@@ -96,12 +96,10 @@ export default function StatisticsPage() {
           )}
         </>
       )}
-      {statistics && !isLoading && statistics.totalUsers === 0 && (
+      {data && !isLoading && data.totalUsers === 0 && (
         <p className="text-gray-500 p-4">No user engagement scores to display.</p>
       )}
-      {statistics && statistics.demographicInsights && (
-        <UserDemographicInsightsTable insights={statistics.demographicInsights} />
-      )}
+      {data && data.demographicInsights && <UserDemographicInsightsTable insights={data.demographicInsights} />}
     </div>
   )
 }

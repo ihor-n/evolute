@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { type IUser, type UserStatus } from '@repo/dto'
+import { type IUser } from '@repo/dto'
 import { Button, Checkbox, Input, Select, Option } from '@/components/ui'
 import { SortableColumn, SortDirection } from '@/lib/api'
 import { SortIndicator } from '@/components'
@@ -153,11 +153,8 @@ export const UserTable: React.FC<UserTableProps> = ({
                   aria-label="Filter by Status"
                 >
                   <Option value="">All</Option>
-                  {(['active', 'inactive'] as UserStatus[]).map(optVal => (
-                    <Option key={optVal} value={optVal}>
-                      {optVal.charAt(0).toUpperCase() + optVal.slice(1)}
-                    </Option>
-                  ))}
+                  <Option value="active">Active</Option>
+                  <Option value="inactive">Inactive</Option>
                 </Select>
               </th>
               <th className="py-2 px-6 text-left"></th>

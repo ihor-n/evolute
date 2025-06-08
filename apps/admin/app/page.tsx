@@ -17,17 +17,17 @@ import { useRouter, useSearchParams } from 'next/navigation'
 const ITEMS_PER_PAGE = 10
 
 export default function UserManagementPage() {
-  const [usersData, setUsersData] = useState<IUsersApiResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [data, setData] = useState<IUsersApiResponse | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [sortColumn, setSortColumn] = useState<SortableColumn | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [filters, setFilters] = useState<Partial<Record<SortableColumn, string>>>({})
-  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false)
-  const [isAddManufacturerModalOpen, setIsAddManufacturerModalOpen] = useState(false)
-  const [isSubmittingManufacturer, setIsSubmittingManufacturer] = useState(false)
+  const [isInitialSyncComplete, setIsInitialSyncComplete] = useState<boolean>(false)
+  const [isAddManufacturerModalOpen, setIsAddManufacturerModalOpen] = useState<boolean>(false)
+  const [isSubmittingManufacturer, setIsSubmittingManufacturer] = useState<boolean>(false)
   const [submitManufacturerError, setSubmitManufacturerError] = useState<string | null>(null)
 
   const router = useRouter()
@@ -92,10 +92,10 @@ export default function UserManagementPage() {
         setIsLoading(true)
         setError(null)
         const data = await fetchUsers(currentPage, ITEMS_PER_PAGE, sortColumn, sortDirection, filters)
-        setUsersData(data)
+        setData(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
-        setUsersData(null)
+        setData(null)
       } finally {
         setSelectedUserIds([])
         setIsLoading(false)
@@ -104,8 +104,6 @@ export default function UserManagementPage() {
 
     loadUsers()
   }, [isInitialSyncComplete, currentPage, sortColumn, sortDirection, filters])
-
-  const totalPages = usersData ? Math.ceil(usersData.total / usersData.limit) : 0
 
   const handleSort = (column: SortableColumn) => {
     let newSortDirection: SortDirection = 'asc'
@@ -145,14 +143,15 @@ export default function UserManagementPage() {
       const payload: CreateManufacturerPayload = { ...manufacturerData, userIds: selectedUserIds }
       await addUsersToNewManufacturer(payload)
       setIsAddManufacturerModalOpen(false)
-      setSelectedUserIds([]) // Clear selection
-      // Optionally: show success message or refetch data if needed
+      setSelectedUserIds([])
     } catch (err) {
       setSubmitManufacturerError(err instanceof Error ? err.message : 'Failed to create manufacturer')
     } finally {
       setIsSubmittingManufacturer(false)
     }
   }
+
+  const totalPages = data ? Math.ceil(data.total / data.limit) : 0
 
   return (
     <div className="container max-w-7xl mx-auto p-4">
@@ -166,9 +165,9 @@ export default function UserManagementPage() {
       </div>
       {isLoading && <p className="text-blue-500">Loading users...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
-      {usersData && (
+      {data && (
         <UserTable
-          users={usersData.users}
+          users={data.users}
           onSort={handleSort}
           sortColumn={sortColumn}
           sortDirection={sortDirection}
@@ -188,7 +187,7 @@ export default function UserManagementPage() {
           error={submitManufacturerError}
         />
       )}
-      {usersData && usersData.total > 0 && usersData.total > ITEMS_PER_PAGE && (
+      {data && data.total > ITEMS_PER_PAGE && (
         <Pagination className="mt-6">
           <PaginationContent>
             <PaginationItem>
