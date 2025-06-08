@@ -5,12 +5,12 @@ import { TOKENS } from '@/src/infrastructure/di/tokens'
 
 @injectable()
 export class UserController implements IUserController {
-  constructor(@inject(TOKENS.UserService) private userService: IUserService) {}
+  constructor(@inject(TOKENS.UserService) private service: IUserService) {}
 
   getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page = 1, limit = 10, search, sort, order, ...filters } = req.query
-      const result = await this.userService.getUsers(
+      const result = await this.service.getUsers(
         filters as Record<string, unknown>,
         search as string | undefined,
         Number(page),

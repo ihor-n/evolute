@@ -13,7 +13,7 @@ interface UserStatisticsFacetOutput {
 
 @injectable()
 export class StatisticsService implements IStatisticsService {
-  constructor(@inject(TOKENS.UserRepository) private userRepository: IUserRepository) {}
+  constructor(@inject(TOKENS.UserRepository) private repository: IUserRepository) {}
 
   async getUserStatistics(page: number = 1, limit: number = 10): Promise<IUserStatisticsResponse> {
     const thirtyDaysAgo = new Date()
@@ -133,7 +133,7 @@ export class StatisticsService implements IStatisticsService {
       }
     ]
 
-    const result = await this.userRepository.aggregate<UserStatisticsFacetOutput>(pipeline)
+    const result = await this.repository.aggregate<UserStatisticsFacetOutput>(pipeline)
 
     if (result && result.length > 0) {
       const data: UserStatisticsFacetOutput = result[0]

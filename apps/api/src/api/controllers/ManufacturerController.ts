@@ -5,7 +5,7 @@ import { TOKENS } from '@/src/infrastructure/di/tokens'
 
 @injectable()
 export class ManufacturerController implements IManufacturerController {
-  constructor(@inject(TOKENS.ManufacturerService) private manufacturerService: IManufacturerService) {}
+  constructor(@inject(TOKENS.ManufacturerService) private service: IManufacturerService) {}
 
   addUsersToNewManufacturer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -14,7 +14,7 @@ export class ManufacturerController implements IManufacturerController {
         res.status(400).json({ message: 'Missing required fields: userIds and manufacturer name' })
         return
       }
-      const manufacturer = await this.manufacturerService.addUsersToNewManufacturer(userIds, manufacturerData)
+      const manufacturer = await this.service.addUsersToNewManufacturer(userIds, manufacturerData)
       res.status(201).json(manufacturer)
     } catch (error) {
       next(error)
@@ -24,7 +24,7 @@ export class ManufacturerController implements IManufacturerController {
   getManufacturers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page = 1, limit = 10, sort, order } = req.query
-      const result = await this.manufacturerService.getManufacturersWithDetails(
+      const result = await this.service.getManufacturersWithDetails(
         Number(page),
         Number(limit),
         sort as string | undefined,

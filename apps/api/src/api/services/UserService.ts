@@ -8,7 +8,7 @@ import { type IUserService } from '@/src/core/interfaces/services/IUserService'
 
 @injectable()
 export class UserService implements IUserService {
-  constructor(@inject(TOKENS.UserRepository) private userRepository: IUserRepository) {}
+  constructor(@inject(TOKENS.UserRepository) private repository: IUserRepository) {}
 
   async getUsers(
     filters: GetFilters,
@@ -49,8 +49,8 @@ export class UserService implements IUserService {
       ]
     }
 
-    const users = await this.userRepository.find(query, page, limit, sort, order)
-    const total = await this.userRepository.count(query)
+    const users = await this.repository.find(query, page, limit, sort, order)
+    const total = await this.repository.count(query)
     return { users, total, page, limit }
   }
 }
