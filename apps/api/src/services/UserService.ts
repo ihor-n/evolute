@@ -1,11 +1,16 @@
 import mongoose, { type FilterQuery } from 'mongoose'
-import { UserRepository } from '../repositories/UserRepository'
-import { ManufacturerRepository } from '../repositories/ManufacturerRepository'
-import { type IUser } from '../models/User'
-import { type IManufacturer } from '../models/Manufacturer'
-import { type IUserStatisticsResponse } from '@repo/dto'
+import { UserRepository } from '@/src/repositories/UserRepository'
+import { ManufacturerRepository } from '@/src/repositories/ManufacturerRepository'
+import { type IUser } from '@/src/models/User'
+import { type IManufacturer } from '@/src/models/Manufacturer'
+import {
+  type IUserStatisticsResponse,
+  type IUser as IUserDto,
+  type IManufacturersResponse,
+  type IManufacturerWithUsersForList
+} from '@repo/dto'
 
-export interface GetUsersFilters {
+export interface GetFilters {
   firstName?: string
   lastName?: string
   email?: string
@@ -25,7 +30,7 @@ export class UserService {
   }
 
   async getUsers(
-    filters: GetUsersFilters,
+    filters: GetFilters,
     search: string | undefined,
     page: number,
     limit: number,
@@ -33,20 +38,20 @@ export class UserService {
     order?: 'asc' | 'desc'
   ): Promise<{ users: IUser[]; total: number; page: number; limit: number }> {
     const query: FilterQuery<IUser> = {}
-    const regexFilterColumns: (keyof GetUsersFilters & keyof IUser)[] = ['firstName', 'email', 'company']
+    const regexFilterColumns: (keyof GetFilters & keyof IUser)[] = ['firstName', 'email', 'company']
 
     for (const key in filters) {
       if (Object.prototype.hasOwnProperty.call(filters, key)) {
-        const filterKey = key as keyof GetUsersFilters
+        const filterKey = key as keyof GetFilters
         const value = filters[filterKey]
         if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
           continue
         }
 
-        if (regexFilterColumns.includes(filterKey as any) && typeof value === 'string') {
-          query[filterKey as keyof IUser] = { $regex: value.trim(), $options: 'i' } as any
+        if (regexFilterColumns.includes(filterKey) && typeof value === 'string') {
+          query[filterKey as keyof IUser] = { $regex: value.trim(), $options: 'i' }
         } else {
-          query[filterKey as keyof IUser] = value as any
+          query[filterKey as keyof IUser] = value
         }
       }
     }
@@ -86,6 +91,28 @@ export class UserService {
       ...manufacturerData,
       userIds: users.map(user => user._id)
     })
+  }
+
+  async getManufacturersWithDetails(
+    page: number,
+    limit: number,
+    sort?: string,
+    order?: 'asc' | 'desc'
+  ): Promise<IManufacturersResponse> {
+    const manufacturers = await this.manufacturerRepository.findAllAndPopulateUsers(page, limit, sort, order)
+    const total = await this.manufacturerRepository.countAll()
+
+    const manufacturersWithUsers = manufacturers.map(m => ({
+      ...m.toObject(),
+      userIds: m.userIds as unknown as IUserDto[]
+    })) as IManufacturerWithUsersForList[]
+
+    return {
+      manufacturers: manufacturersWithUsers,
+      total,
+      page,
+      limit
+    }
   }
 
   async getUserStatistics(page: number = 1, limit: number = 10): Promise<IUserStatisticsResponse> {

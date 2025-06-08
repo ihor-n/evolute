@@ -2,31 +2,30 @@
 
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { fetchUserStatistics } from '@/lib/api'
-import { type IUserStatisticsResponse } from '@repo/dto'
-import { UserEngagementScoresTable, UserDemographicInsightsTable } from '@/components'
+import { type IManufacturersResponse, type IManufacturerWithUsersForList } from '@repo/dto'
+import { fetchManufacturers } from '@/lib/api'
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext } from '@/components/ui'
+import { ContactPerson } from '@/components'
 
 const ITEMS_PER_PAGE = 10
 
-export default function StatisticsPage() {
-  const searchParams = useSearchParams()
-
-  const [data, setData] = useState<IUserStatisticsResponse | null>(null)
+export default function ManufacturersPage() {
+  const [data, setData] = useState<IManufacturersResponse | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [isInitialSyncComplete, setIsInitialSyncComplete] = useState<boolean>(false)
 
-  useEffect(() => {
-    const page = parseInt(searchParams.get('page') || '1', 10)
+  const searchParams = useSearchParams()
 
-    setCurrentPage(page)
+  useEffect(() => {
+    const pageFromUrl = parseInt(searchParams.get('page') || '1', 10)
+    setCurrentPage(pageFromUrl)
     setIsInitialSyncComplete(true)
   }, [searchParams])
 
   useEffect(() => {
-    const loadStatistics = async () => {
+    const loadManufacturers = async () => {
       if (!isInitialSyncComplete) {
         return
       }
@@ -34,8 +33,8 @@ export default function StatisticsPage() {
       try {
         setIsLoading(true)
         setError(null)
-        const data = await fetchUserStatistics(currentPage, ITEMS_PER_PAGE)
-        setData(data)
+        const result = await fetchManufacturers(currentPage, ITEMS_PER_PAGE)
+        setData(result)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
         setData(null)
@@ -44,23 +43,44 @@ export default function StatisticsPage() {
       }
     }
 
-    loadStatistics()
+    loadManufacturers()
   }, [currentPage, isInitialSyncComplete])
 
-  const paginatedScores = data?.usersWithScores || []
-  const totalPages = data?.totalUsers ? Math.ceil(data.totalUsers / ITEMS_PER_PAGE) : 0
+  const totalPages = data ? Math.ceil(data.total / data.limit) : 0
 
   return (
     <div className="container max-w-7xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">User Engagement Statistics</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Manufacturers</h1>
 
-      {isLoading && <p className="text-blue-500 p-4">Loading statistics...</p>}
-      {error && <p className="text-red-500 p-4">Error: {error}</p>}
+      {isLoading && <p className="p-4 text-blue-500">Loading manufacturers...</p>}
+      {error && <p className="p-4 text-red-500">Error: {error}</p>}
 
-      {data && data.totalUsers > 0 && <UserEngagementScoresTable users={paginatedScores} />}
+      {data && (
+        <div className="space-y-6">
+          {data.manufacturers.map((manufacturer: IManufacturerWithUsersForList) => (
+            <div key={manufacturer._id} className="bg-white shadow-md rounded-lg p-6">
+              <h2 className="text-2xl font-semibold text-gray-700">{manufacturer.name}</h2>
+              <p className="text-sm text-gray-500 mb-1">Industry: {manufacturer.industry}</p>
+              <ContactPerson contact={manufacturer.contactPerson} />
+              <h3 className="text-lg font-medium text-gray-600 mt-3 mb-2">Associated Users:</h3>
+              {manufacturer.userIds && manufacturer.userIds.length > 0 ? (
+                <ul className="list-disc list-inside space-y-1 pl-4">
+                  {manufacturer.userIds.map(user => (
+                    <li key={user._id} className="text-sm text-gray-600">
+                      {user.firstName} {user.lastName} ({user.email})
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No users associated with this manufacturer.</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {totalPages > 1 && (
-        <Pagination className="mt-6">
+        <Pagination className="mt-8">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -93,11 +113,7 @@ export default function StatisticsPage() {
         </Pagination>
       )}
 
-      {data && !isLoading && data.totalUsers === 0 && (
-        <p className="text-gray-500 p-4">No user engagement scores to display.</p>
-      )}
-
-      {data && data.demographicInsights && <UserDemographicInsightsTable insights={data.demographicInsights} />}
+      {data && !isLoading && !data.manufacturers.length && <p className="p-4 text-gray-500">No manufacturers found.</p>}
     </div>
   )
 }

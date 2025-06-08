@@ -163,8 +163,10 @@ export default function UserManagementPage() {
           </Button>
         )}
       </div>
+
       {isLoading && <p className="text-blue-500">Loading users...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
+
       {data && (
         <UserTable
           users={data.users}
@@ -177,7 +179,8 @@ export default function UserManagementPage() {
           onFilterChange={handleFilterChange}
         />
       )}
-      {data && data.total > ITEMS_PER_PAGE && (
+
+      {totalPages > 1 && (
         <Pagination className="mt-6">
           <PaginationContent>
             <PaginationItem>
@@ -210,6 +213,7 @@ export default function UserManagementPage() {
           </PaginationContent>
         </Pagination>
       )}
+
       {isAddManufacturerModalOpen && (
         <AddManufacturerModal
           isOpen={isAddManufacturerModalOpen}

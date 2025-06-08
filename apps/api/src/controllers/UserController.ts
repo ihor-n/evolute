@@ -10,7 +10,7 @@ export class UserController {
     try {
       const { page = 1, limit = 10, search, sort, order, ...filters } = req.query
       const result = await userService.getUsers(
-        filters as Record<string, any>,
+        filters as Record<string, unknown>,
         search as string | undefined,
         Number(page),
         Number(limit),
@@ -44,6 +44,21 @@ export class UserController {
       }
       const manufacturer = await userService.addUsersToNewManufacturer(userIds, manufacturerData)
       res.status(201).json(manufacturer)
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  async getManufacturers(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { page = 1, limit = 10, sort, order } = req.query
+      const result = await userService.getManufacturersWithDetails(
+        Number(page),
+        Number(limit),
+        sort as string | undefined,
+        order as 'asc' | 'desc' | undefined
+      )
+      res.json(result)
     } catch (error) {
       next(error)
     }

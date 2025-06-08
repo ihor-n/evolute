@@ -1,8 +1,9 @@
 import {
   type IUsersApiResponse,
   type IUserStatisticsResponse,
-  type IManufacturer,
-  type CreateManufacturerPayload
+  type IManufacturerResponse,
+  type CreateManufacturerPayload,
+  type IManufacturersResponse
 } from '@repo/dto'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api'
@@ -37,10 +38,11 @@ export async function fetchUsers(
   if (!response.ok) {
     throw new Error('Failed to fetch users')
   }
+
   return response.json()
 }
 
-export async function addUsersToNewManufacturer(payload: CreateManufacturerPayload): Promise<IManufacturer> {
+export async function addUsersToNewManufacturer(payload: CreateManufacturerPayload): Promise<IManufacturerResponse> {
   const response = await fetch(`${API_BASE_URL}/manufacturers`, {
     method: 'POST',
     headers: {
@@ -50,9 +52,9 @@ export async function addUsersToNewManufacturer(payload: CreateManufacturerPaylo
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || 'Failed to add users to new manufacturer')
+    throw new Error('Failed to add users to new manufacturer')
   }
+
   return response.json()
 }
 
@@ -65,5 +67,16 @@ export async function fetchUserStatistics(page: number = 1, limit: number = 10):
   if (!response.ok) {
     throw new Error('Failed to fetch user statistics')
   }
+  return response.json()
+}
+
+export async function fetchManufacturers(page: number = 1, limit: number = 10): Promise<IManufacturersResponse> {
+  const queryParams = new URLSearchParams({ page: String(page), limit: String(limit) })
+
+  const response = await fetch(`${API_BASE_URL}/manufacturers?${queryParams.toString()}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch manufacturers')
+  }
+
   return response.json()
 }

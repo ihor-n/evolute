@@ -134,7 +134,8 @@ export interface IContactPerson {
   email: string
   phone: string
 }
-export interface IManufacturer {
+
+export interface IManufacturerResponse {
   _id: string
   name: string
   industry: string
@@ -151,4 +152,30 @@ export interface CreateManufacturerPayload {
     phone: string
   }
   userIds: string[]
+}
+
+export interface IUserSummaryForManufacturer {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+}
+
+export interface IManufacturerWithUsersForList {
+  _id: string
+  name: string
+  industry: string
+  userIds: IUserSummaryForManufacturer[]
+  contactPerson?: {
+    name?: string
+    email?: string
+    phone?: string
+  }
+}
+
+export interface IManufacturersResponse {
+  manufacturers: IManufacturerWithUsersForList[]
+  total: number
+  page: number
+  limit: number
 }
