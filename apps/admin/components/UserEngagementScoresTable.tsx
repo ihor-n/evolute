@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { IUserWithScore } from '@/types'
+import { type IUserWithScore } from '@repo/dto'
 
 interface UserEngagementScoresTableProps {
   users: IUserWithScore[]

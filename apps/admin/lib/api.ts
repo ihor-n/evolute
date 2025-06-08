@@ -1,4 +1,9 @@
-import { IUsersApiResponse, IUserStatisticsResponse } from '../types'
+import {
+  type IUsersApiResponse,
+  type IUserStatisticsResponse,
+  type IManufacturer,
+  type CreateManufacturerPayload
+} from '@repo/dto'
 
 const API_BASE_URL = 'http://localhost:5001/api'
 
@@ -31,6 +36,22 @@ export async function fetchUsers(
   const response = await fetch(`${API_BASE_URL}/users?${queryParams.toString()}`)
   if (!response.ok) {
     throw new Error('Failed to fetch users')
+  }
+  return response.json()
+}
+
+export async function addUsersToNewManufacturer(payload: CreateManufacturerPayload): Promise<IManufacturer> {
+  const response = await fetch(`${API_BASE_URL}/manufacturers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.message || 'Failed to add users to new manufacturer')
   }
   return response.json()
 }

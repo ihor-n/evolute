@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
-import { UserTable } from '@/components/UserTable'
-import { fetchUsers, SortDirection, SortableColumn } from '@/lib/api'
-import { type IUsersApiResponse } from '@repo/dto'
+import { UserTable, AddManufacturerModal } from '@/components'
+import { fetchUsers, SortDirection, SortableColumn, addUsersToNewManufacturer } from '@/lib/api'
+import { type IUsersApiResponse, type CreateManufacturerPayload } from '@repo/dto'
 import {
   Pagination,
   PaginationContent,
@@ -26,6 +26,9 @@ export default function UserManagementPage() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [filters, setFilters] = useState<Partial<Record<SortableColumn, string>>>({})
   const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false)
+  const [isAddManufacturerModalOpen, setIsAddManufacturerModalOpen] = useState(false)
+  const [isSubmittingManufacturer, setIsSubmittingManufacturer] = useState(false)
+  const [submitManufacturerError, setSubmitManufacturerError] = useState<string | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -124,16 +127,39 @@ export default function UserManagementPage() {
     updateUrlQueryParams({ filters: newFilters, page: 1 })
   }
 
+  const handleOpenAddManufacturerModal = () => {
+    if (selectedUserIds.length > 0) {
+      setSubmitManufacturerError(null)
+      setIsAddManufacturerModalOpen(true)
+    }
+  }
+
+  const handleCreateManufacturerSubmit = async (manufacturerData: Omit<CreateManufacturerPayload, 'userIds'>) => {
+    if (selectedUserIds.length === 0) {
+      setSubmitManufacturerError('No users selected.')
+      return
+    }
+    setIsSubmittingManufacturer(true)
+    setSubmitManufacturerError(null)
+    try {
+      const payload: CreateManufacturerPayload = { ...manufacturerData, userIds: selectedUserIds }
+      await addUsersToNewManufacturer(payload)
+      setIsAddManufacturerModalOpen(false)
+      setSelectedUserIds([]) // Clear selection
+      // Optionally: show success message or refetch data if needed
+    } catch (err) {
+      setSubmitManufacturerError(err instanceof Error ? err.message : 'Failed to create manufacturer')
+    } finally {
+      setIsSubmittingManufacturer(false)
+    }
+  }
+
   return (
     <div className="container max-w-7xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">User Management</h1>
       <div className="mb-4 flex gap-2">
         {selectedUserIds.length > 0 && (
-          <Button
-            onClick={() => console.log('Add to manufacturer:', selectedUserIds)}
-            variant="secondary"
-            className="ml-auto"
-          >
+          <Button onClick={handleOpenAddManufacturerModal} variant="secondary" className="ml-auto">
             Add {selectedUserIds.length} User(s) to Manufacturer
           </Button>
         )}
@@ -150,6 +176,16 @@ export default function UserManagementPage() {
           onSelectedUserIdsChange={handleSelectedUserIdsChange}
           filters={filters}
           onFilterChange={handleFilterChange}
+        />
+      )}
+      {isAddManufacturerModalOpen && (
+        <AddManufacturerModal
+          isOpen={isAddManufacturerModalOpen}
+          onClose={() => setIsAddManufacturerModalOpen(false)}
+          onSubmit={handleCreateManufacturerSubmit}
+          selectedUserCount={selectedUserIds.length}
+          isLoading={isSubmittingManufacturer}
+          error={submitManufacturerError}
         />
       )}
       {usersData && usersData.total > 0 && usersData.total > ITEMS_PER_PAGE && (

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { IDemographicInsight } from '@/types'
+import { type IDemographicInsight } from '@repo/dto'
 
 interface UserDemographicInsightsTableProps {
   insights: IDemographicInsight[]
