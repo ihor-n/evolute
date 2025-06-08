@@ -1,9 +1,26 @@
 import mongoose, { Schema, Document, Types } from 'mongoose'
 
-interface IExperience {
+export interface IExperience {
   yearsInIndustry: number
   expertise: string[]
   certifications: string[]
+}
+
+const ExperienceSchema: Schema = new Schema<IExperience>(
+  {
+    yearsInIndustry: { type: Number },
+    expertise: [{ type: String }],
+    certifications: [{ type: String }]
+  },
+  { _id: false }
+)
+
+export interface IAddress {
+  street: string
+  city: string
+  state: string
+  country: string
+  postalCode: string
 }
 
 interface IPreferences {
@@ -70,13 +87,16 @@ interface IParticipation {
   feedbackProvided: IFeedbackProvided
 }
 
-interface IAddress {
-  street: string
-  city: string
-  state: string
-  country: string
-  postalCode: string
-}
+const AddressSchema: Schema = new Schema<IAddress>(
+  {
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    country: { type: String },
+    postalCode: { type: String }
+  },
+  { _id: false }
+)
 
 export interface IUser extends Document {
   _id: Types.ObjectId
@@ -110,13 +130,13 @@ const UserSchema: Schema = new Schema(
     department: String,
     role: String,
     jobTitle: String,
-    experience: Schema.Types.Mixed,
+    experience: ExperienceSchema,
     preferences: Schema.Types.Mixed,
     demographics: DemographicsSchema,
     workHistory: Schema.Types.Mixed,
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     participation: Schema.Types.Mixed,
-    address: Schema.Types.Mixed,
+    address: AddressSchema,
     joinedAt: { type: Date, default: Date.now },
     lastActive: Date,
     metadata: Schema.Types.Mixed

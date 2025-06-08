@@ -5,6 +5,16 @@ import { type IUser } from '../models/User'
 import { type IManufacturer } from '../models/Manufacturer'
 import { type IUserStatisticsResponse } from '@repo/dto'
 
+export interface GetUsersFilters {
+  firstName?: string
+  lastName?: string
+  email?: string
+  company?: string
+  department?: string
+  jobTitle?: string
+  status?: 'active' | 'inactive'
+}
+
 export class UserService {
   private userRepository: UserRepository
   private manufacturerRepository: ManufacturerRepository
@@ -15,7 +25,7 @@ export class UserService {
   }
 
   async getUsers(
-    filters: Record<string, unknown>,
+    filters: GetUsersFilters,
     search: string | undefined,
     page: number,
     limit: number,
@@ -23,19 +33,20 @@ export class UserService {
     order?: 'asc' | 'desc'
   ): Promise<{ users: IUser[]; total: number; page: number; limit: number }> {
     const query: FilterQuery<IUser> = {}
-    const regexFilterColumns: string[] = ['firstName', 'email', 'company']
+    const regexFilterColumns: (keyof GetUsersFilters & keyof IUser)[] = ['firstName', 'email', 'company']
 
     for (const key in filters) {
       if (Object.prototype.hasOwnProperty.call(filters, key)) {
-        const value = filters[key]
+        const filterKey = key as keyof GetUsersFilters
+        const value = filters[filterKey]
         if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
           continue
         }
 
-        if (regexFilterColumns.includes(key) && typeof value === 'string') {
-          query[key as keyof IUser] = { $regex: value.trim(), $options: 'i' }
+        if (regexFilterColumns.includes(filterKey as any) && typeof value === 'string') {
+          query[filterKey as keyof IUser] = { $regex: value.trim(), $options: 'i' } as any
         } else {
-          query[key as keyof IUser] = value
+          query[filterKey as keyof IUser] = value as any
         }
       }
     }

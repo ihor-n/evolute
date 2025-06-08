@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { UserService } from '../services/UserService'
 import UserRepository from '../repositories/UserRepository'
 import ManufacturerRepository from '../repositories/ManufacturerRepository'
@@ -6,7 +6,7 @@ import ManufacturerRepository from '../repositories/ManufacturerRepository'
 const userService = new UserService(UserRepository, ManufacturerRepository)
 
 export class UserController {
-  async getUsers(req: Request, res: Response): Promise<void> {
+  async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, limit = 10, search, sort, order, ...filters } = req.query
       const result = await userService.getUsers(
@@ -19,11 +19,11 @@ export class UserController {
       )
       res.json(result)
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching users', error: (error as Error).message })
+      next(error)
     }
   }
 
-  async getUserStatistics(req: Request, res: Response): Promise<void> {
+  async getUserStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1
       const limit = parseInt(req.query.limit as string) || 10
@@ -31,12 +31,11 @@ export class UserController {
       const statistics = await userService.getUserStatistics(page, limit)
       res.json(statistics)
     } catch (error) {
-      console.error('Error in getUserStatistics controller:', error)
-      res.status(500).json({ message: 'Error fetching user statistics', error: (error as Error).message })
+      next(error)
     }
   }
 
-  async addUsersToNewManufacturer(req: Request, res: Response): Promise<void> {
+  async addUsersToNewManufacturer(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { userIds, ...manufacturerData } = req.body
       if (!userIds || !Array.isArray(userIds) || userIds.length === 0 || !manufacturerData.name) {
@@ -46,7 +45,7 @@ export class UserController {
       const manufacturer = await userService.addUsersToNewManufacturer(userIds, manufacturerData)
       res.status(201).json(manufacturer)
     } catch (error) {
-      res.status(500).json({ message: 'Error creating manufacturer', error: (error as Error).message })
+      next(error)
     }
   }
 }

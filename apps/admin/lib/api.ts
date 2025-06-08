@@ -5,7 +5,7 @@ import {
   type CreateManufacturerPayload
 } from '@repo/dto'
 
-const API_BASE_URL = 'http://localhost:5001/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/api'
 
 export type SortDirection = 'asc' | 'desc'
 export type SortableColumn = 'firstName' | 'email' | 'company' | 'status' | 'joinedAt'

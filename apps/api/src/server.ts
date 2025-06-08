@@ -3,6 +3,7 @@ import express, { type Express } from 'express'
 import morgan from 'morgan'
 import cors from 'cors'
 import routes from './routes'
+import { errorHandler } from './middleware/errorHandler'
 
 export const createServer = (): Express => {
   const app = express()
@@ -19,5 +20,6 @@ export const createServer = (): Express => {
   })
 
   app.use('/api', routes)
+  app.use(errorHandler)
   return app
 }
