@@ -1,6 +1,6 @@
 import { type FilterQuery } from 'mongoose'
-import { UserRepository } from '@/src/repositories/UserRepository'
-import { type IUser } from '@/src/models/User'
+import { UserRepository } from '@/src/core/repositories/UserRepository'
+import { type IUser } from '@/src/core/models/User'
 
 export interface GetFilters {
   firstName?: string

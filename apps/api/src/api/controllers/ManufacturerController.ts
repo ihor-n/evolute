@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { ManufacturerService } from '@/src/services/ManufacturerService'
-import ManufacturerRepository from '@/src/repositories/ManufacturerRepository'
-import UserRepository from '@/src/repositories/UserRepository'
+import { ManufacturerService } from '@/src/api/services/ManufacturerService'
+import ManufacturerRepository from '@/src/core/repositories/ManufacturerRepository'
+import UserRepository from '@/src/core/repositories/UserRepository'
 
 const manufacturerService = new ManufacturerService(ManufacturerRepository, UserRepository)
 

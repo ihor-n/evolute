@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { ManufacturerController } from '@/src/controllers/ManufacturerController'
+import { ManufacturerController } from '@/src/api/controllers/ManufacturerController'
 
 const router = Router()
 const manufacturerController = new ManufacturerController()

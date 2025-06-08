@@ -1,6 +1,6 @@
-import { UserRepository } from '@/src/repositories/UserRepository'
-import { ManufacturerRepository } from '@/src/repositories/ManufacturerRepository'
-import { type IManufacturer } from '@/src/models/Manufacturer'
+import { UserRepository } from '@/src/core/repositories/UserRepository'
+import { ManufacturerRepository } from '@/src/core/repositories/ManufacturerRepository'
+import { type IManufacturer } from '@/src/core/models/Manufacturer'
 import { type IUser as IDtoUser, type IManufacturersResponse, type IManufacturerWithUsersForList } from '@repo/dto'
 
 export class ManufacturerService {

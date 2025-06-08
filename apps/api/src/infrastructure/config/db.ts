@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import { logger } from '@repo/logger'
 
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
       logger.error('MONGODB_URI is not defined in environment variables.')
@@ -14,5 +14,3 @@ const connectDB = async () => {
     process.exit(1)
   }
 }
-
-export default connectDB

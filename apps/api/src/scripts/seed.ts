@@ -1,11 +1,11 @@
 import 'dotenv/config'
 
 import mongoose from 'mongoose'
-import connectDB from '../config/db'
-import User from '../models/User'
-import Manufacturer from '../models/Manufacturer'
-import { sampleUsers, sampleManufacturers } from './sample-data'
 import { logger } from '@repo/logger'
+import { connectDB } from '@/src/infrastructure/config/db'
+import User from '@/src/core/models/User'
+import Manufacturer from '@/src/core/models/Manufacturer'
+import { sampleUsers, sampleManufacturers } from '@/src/scripts/sample-data'
 
 const seedDatabase = async () => {
   try {

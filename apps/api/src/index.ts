@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { logger } from '@repo/logger'
 import { createServer } from '@/src/server'
-import connectDB from '@/src/config/db'
+import { connectDB } from '@/src/infrastructure/config/db'
 
 const port = process.env.PORT || 5001
 const server = createServer()

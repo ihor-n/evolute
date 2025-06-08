@@ -1,7 +1,7 @@
 import express, { type Express, json, urlencoded } from 'express'
 import cors from 'cors'
-import routes from '@/src/routes'
-import { errorHandler } from '@/src/middleware/errorHandler'
+import routes from '@/src/api/routes'
+import { errorHandler } from '@/src/infrastructure/middleware/errorHandler'
 
 export const createServer = (): Express => {
   const app = express()

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { UserRepository } from '@/src/repositories/UserRepository'
+import { UserRepository } from '@/src/core/repositories/UserRepository'
 import { type IUserStatisticsResponse, type IUserWithScore, type IDemographicInsight } from '@repo/dto'
 
 interface UserStatisticsFacetOutput {

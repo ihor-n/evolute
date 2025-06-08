@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import userRoutes from './userRoutes'
-import manufacturerRoutes from './manufacturerRoutes'
+import userRoutes from '@/src/api/routes/userRoutes'
+import manufacturerRoutes from '@/src/api/routes/manufacturerRoutes'
 
 const router = Router()
 

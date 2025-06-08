@@ -2,11 +2,11 @@ import mongoose from 'mongoose'
 import supertest from 'supertest'
 import { describe, it, expect, jest, beforeEach } from '@jest/globals'
 import { createServer } from '@/src/server'
-import { UserService as ActualUserService } from '@/src/services/UserService'
-import { type IUser } from '@/src/models/User'
-import { type GetFilters } from '@/src/services/UserService'
+import { UserService as ActualUserService } from '@/src/api/services/UserService'
+import { type IUser } from '@/src/core/models/User'
+import { type GetFilters } from '@/src/api/services/UserService'
 
-jest.mock('@/src/services/UserService')
+jest.mock('@/src/api/services/UserService')
 
 const MockedUserServiceConstructor = ActualUserService as jest.MockedClass<typeof ActualUserService>
 

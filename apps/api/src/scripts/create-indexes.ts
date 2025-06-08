@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
-import connectDB from '../config/db'
 import { logger } from '@repo/logger'
+import { connectDB } from '@/src/infrastructure/config/db'
 
 const createIndexes = async () => {
   try {
@@ -15,7 +15,6 @@ const createIndexes = async () => {
       process.exit(1)
     }
 
-    // Indexes for fields used in engagement score calculation
     await db.collection('users').createIndex({ lastActive: 1 })
     logger.info('Index created for users: lastActive')
     await db.collection('users').createIndex({ 'participation.responseRate': 1 })
@@ -27,7 +26,6 @@ const createIndexes = async () => {
     await db.collection('users').createIndex({ 'participation.responseQuality.thoughtfulnessScore': 1 })
     logger.info('Index created for users: participation.responseQuality.thoughtfulnessScore')
 
-    // Compound index for demographic grouping in the statistics pipeline
     await db.collection('users').createIndex({
       'demographics.ageRange': 1,
       'demographics.gender': 1,

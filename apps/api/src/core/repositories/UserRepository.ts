@@ -1,4 +1,4 @@
-import User, { IUser } from '@/src/models/User'
+import User, { IUser } from '@/src/core/models/User'
 import { FilterQuery, PipelineStage } from 'mongoose'
 
 export class UserRepository {
