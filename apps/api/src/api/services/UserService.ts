@@ -1,10 +1,9 @@
+import { inject, injectable } from 'inversify'
 import { type FilterQuery } from 'mongoose'
-import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
 import { type IUser } from '@/src/core/models/User'
 import { type GetFilters } from '@repo/dto'
-import { inject, injectable } from 'inversify'
+import { type IUserRepository, type IUserService } from '@/src/core/interfaces'
 import { TOKENS } from '@/src/infrastructure/di/tokens'
-import { type IUserService } from '@/src/core/interfaces/services/IUserService'
 
 @injectable()
 export class UserService implements IUserService {

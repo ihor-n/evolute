@@ -1,9 +1,8 @@
 import mongoose from 'mongoose'
-import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
 import { injectable, inject } from 'inversify'
-import { TOKENS } from '@/src/infrastructure/di/tokens'
 import { type IUserStatisticsResponse, type IUserWithScore, type IDemographicInsight } from '@repo/dto'
-import { type IStatisticsService } from '@/src/core/interfaces/services/IStatisticsService'
+import { type IUserRepository, type IStatisticsService } from '@/src/core/interfaces'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
 interface UserStatisticsFacetOutput {
   usersWithScores: IUserWithScore[]

@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { container } from '@/src/infrastructure/di/container'
-import { TOKENS } from '@/src/infrastructure/di/tokens'
 import { type IUserController, type IStatisticsController } from '@/src/core/interfaces'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
 const router = Router()
 const userController = container.get<IUserController>(TOKENS.UserController)

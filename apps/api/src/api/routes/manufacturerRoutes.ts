@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { container } from '@/src/infrastructure/di/container'
-import { TOKENS } from '@/src/infrastructure/di/tokens'
 import { type IManufacturerController } from '@/src/core/interfaces'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
 const router = Router()
 const manufacturerController = container.get<IManufacturerController>(TOKENS.ManufacturerController)

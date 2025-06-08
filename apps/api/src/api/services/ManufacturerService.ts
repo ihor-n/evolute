@@ -1,10 +1,8 @@
-import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
-import { type IManufacturerRepository } from '@/src/core/interfaces/repositories/IManufacturerRepository'
+import { inject, injectable } from 'inversify'
 import { type IManufacturer } from '@/src/core/models/Manufacturer'
 import { type IUser as IDtoUser, type IManufacturersResponse, type IManufacturerWithUsersForList } from '@repo/dto'
-import { inject, injectable } from 'inversify'
+import { type IUserRepository, type IManufacturerRepository, type IManufacturerService } from '@/src/core/interfaces'
 import { TOKENS } from '@/src/infrastructure/di/tokens'
-import { type IManufacturerService } from '@/src/core/interfaces/services/IManufacturerService'
 
 @injectable()
 export class ManufacturerService implements IManufacturerService {
