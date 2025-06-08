@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
 import { StatisticsService } from '@/src/api/services/StatisticsService'
-import UserRepository from '@/src/core/repositories/UserRepository'
+import { injectable, inject } from 'inversify'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
-const statisticsService = new StatisticsService(UserRepository)
-
+@injectable()
 export class StatisticsController {
-  async getUserStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
+  constructor(@inject(TOKENS.StatisticsService) private statisticsService: StatisticsService) {}
+
+  getUserStatistics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const page = parseInt(req.query.page as string) || 1
       const limit = parseInt(req.query.limit as string) || 10
-      const statistics = await statisticsService.getUserStatistics(page, limit)
+      const statistics = await this.statisticsService.getUserStatistics(page, limit)
       res.json(statistics)
     } catch (error) {
       next(error)

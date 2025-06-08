@@ -5,6 +5,7 @@ import { createServer } from '@/src/server'
 import { UserService as ActualUserService } from '@/src/api/services/UserService'
 import { type IUser } from '@/src/core/models/User'
 import { type GetFilters } from '@repo/dto'
+import { UserRepository } from '@/src/core/repositories/UserRepository'
 
 jest.mock('@/src/api/services/UserService')
 
@@ -26,8 +27,7 @@ describe('UserController Endpoints', () => {
 
   beforeEach(() => {
     if (MockedUserServiceConstructor.mock.instances.length === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      new MockedUserServiceConstructor(undefined as any)
+      new MockedUserServiceConstructor(undefined as unknown as UserRepository)
     }
     const userServiceInstance = MockedUserServiceConstructor.mock.instances[0]
 

@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from 'express'
 import { UserService } from '@/src/api/services/UserService'
-import UserRepository from '@/src/core/repositories/UserRepository'
+import { injectable, inject } from 'inversify'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
-const userService = new UserService(UserRepository)
-
+@injectable()
 export class UserController {
-  async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+  constructor(@inject(TOKENS.UserService) private userService: UserService) {}
+
+  getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { page = 1, limit = 10, search, sort, order, ...filters } = req.query
-      const result = await userService.getUsers(
+      const result = await this.userService.getUsers(
         filters as Record<string, unknown>,
         search as string | undefined,
         Number(page),

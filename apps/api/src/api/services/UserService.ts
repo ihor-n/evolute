@@ -2,13 +2,12 @@ import { type FilterQuery } from 'mongoose'
 import { UserRepository } from '@/src/core/repositories/UserRepository'
 import { type IUser } from '@/src/core/models/User'
 import { type GetFilters } from '@repo/dto'
+import { inject, injectable } from 'inversify'
+import { TOKENS } from '@/src/infrastructure/di/tokens'
 
+@injectable()
 export class UserService {
-  private userRepository: UserRepository
-
-  constructor(userRepository: UserRepository) {
-    this.userRepository = userRepository
-  }
+  constructor(@inject(TOKENS.UserRepository) private userRepository: UserRepository) {}
 
   async getUsers(
     filters: GetFilters,

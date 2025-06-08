@@ -1,6 +1,8 @@
+import { injectable } from 'inversify'
 import User, { IUser } from '@/src/core/models/User'
 import { FilterQuery, PipelineStage } from 'mongoose'
 
+@injectable()
 export class UserRepository {
   async find(
     query: FilterQuery<IUser>,
@@ -36,5 +38,3 @@ export class UserRepository {
     return User.aggregate<T>(pipeline).allowDiskUse(true).exec()
   }
 }
-
-export default new UserRepository()

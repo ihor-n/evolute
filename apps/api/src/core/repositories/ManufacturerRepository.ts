@@ -1,6 +1,8 @@
+import { injectable } from 'inversify'
 import Manufacturer, { IManufacturer } from '../models/Manufacturer'
 import { FilterQuery, PopulateOptions } from 'mongoose'
 
+@injectable()
 export class ManufacturerRepository {
   async create(data: Partial<IManufacturer>): Promise<IManufacturer> {
     return Manufacturer.create(data)
@@ -30,9 +32,7 @@ export class ManufacturerRepository {
     return queryBuilder.exec()
   }
 
-  async countAll(query: FilterQuery<IManufacturer> = {}): Promise<number> {
+  async countAll(query?: FilterQuery<IManufacturer>): Promise<number> {
     return Manufacturer.countDocuments(query)
   }
 }
-
-export default new ManufacturerRepository()

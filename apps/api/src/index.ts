@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import 'reflect-metadata'
 import { logger } from '@repo/logger'
 import { createServer } from '@/src/server'
 import { connectDB } from '@/src/infrastructure/config/db'
