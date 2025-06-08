@@ -177,16 +177,6 @@ export default function UserManagementPage() {
           onFilterChange={handleFilterChange}
         />
       )}
-      {isAddManufacturerModalOpen && (
-        <AddManufacturerModal
-          isOpen={isAddManufacturerModalOpen}
-          onClose={() => setIsAddManufacturerModalOpen(false)}
-          onSubmit={handleCreateManufacturerSubmit}
-          selectedUserCount={selectedUserIds.length}
-          isLoading={isSubmittingManufacturer}
-          error={submitManufacturerError}
-        />
-      )}
       {data && data.total > ITEMS_PER_PAGE && (
         <Pagination className="mt-6">
           <PaginationContent>
@@ -219,6 +209,16 @@ export default function UserManagementPage() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+      )}
+      {isAddManufacturerModalOpen && (
+        <AddManufacturerModal
+          isOpen={isAddManufacturerModalOpen}
+          onClose={() => setIsAddManufacturerModalOpen(false)}
+          onSubmit={handleCreateManufacturerSubmit}
+          selectedUserCount={selectedUserIds.length}
+          isLoading={isSubmittingManufacturer}
+          error={submitManufacturerError}
+        />
       )}
     </div>
   )
