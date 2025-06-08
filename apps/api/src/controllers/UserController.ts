@@ -23,18 +23,6 @@ export class UserController {
     }
   }
 
-  async getUserStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const page = parseInt(req.query.page as string) || 1
-      const limit = parseInt(req.query.limit as string) || 10
-
-      const statistics = await userService.getUserStatistics(page, limit)
-      res.json(statistics)
-    } catch (error) {
-      next(error)
-    }
-  }
-
   async addUsersToNewManufacturer(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { userIds, ...manufacturerData } = req.body
