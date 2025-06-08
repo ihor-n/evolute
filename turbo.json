@@ -8,7 +8,8 @@
       "outputs": ["build/**", ".vercel/**", "dist/**", ".next/**", "!.next/cache/**"]
     },
     "seed": {
-      "dependsOn": []
+      "dependsOn": ["^build"],
+      "cache": false
     },
     "create-indexes": {
       "dependsOn": []
