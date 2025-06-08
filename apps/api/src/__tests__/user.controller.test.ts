@@ -27,7 +27,7 @@ describe('UserController Endpoints', () => {
   beforeEach(() => {
     if (MockedUserServiceConstructor.mock.instances.length === 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      new MockedUserServiceConstructor(undefined as any, undefined as any)
+      new MockedUserServiceConstructor(undefined as any)
     }
     const userServiceInstance = MockedUserServiceConstructor.mock.instances[0]
 

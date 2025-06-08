@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import { UserController } from '../controllers/UserController'
+import { ManufacturerController } from '@/src/controllers/ManufacturerController'
 
 const router = Router()
-const userController = new UserController()
+const manufacturerController = new ManufacturerController()
 
-router.post('/', userController.addUsersToNewManufacturer)
-router.get('/', userController.getManufacturers)
+router.post('/', manufacturerController.addUsersToNewManufacturer)
+router.get('/', manufacturerController.getManufacturers)
 
 export default router
