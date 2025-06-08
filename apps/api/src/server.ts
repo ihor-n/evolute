@@ -1,6 +1,4 @@
-import bodyParser from 'body-parser'
-import express, { type Express } from 'express'
-import morgan from 'morgan'
+import express, { type Express, json, urlencoded } from 'express'
 import cors from 'cors'
 import routes from '@/src/routes'
 import { errorHandler } from '@/src/middleware/errorHandler'
@@ -8,11 +6,8 @@ import { errorHandler } from '@/src/middleware/errorHandler'
 export const createServer = (): Express => {
   const app = express()
   app
-    .disable('e-tag')
-    .disable('x-powered-by')
-    .use(morgan('dev')) // TODO: remove
-    .use(bodyParser.urlencoded({ extended: true }))
-    .use(bodyParser.json())
+    .use(urlencoded({ extended: true }))
+    .use(json())
     .use(cors())
 
   app.get('/status', (_, res) => {
