@@ -1,12 +1,12 @@
 import { describe, it } from '@jest/globals'
 import { createRoot } from 'react-dom/client'
-import { Input } from '.'
+import { Select } from '..'
 
-describe('Input', () => {
+describe('Select', () => {
   it('renders without crashing', () => {
     const div = document.createElement('div')
     const root = createRoot(div)
-    root.render(<Input />)
+    root.render(<Select />)
     root.unmount()
   })
 })

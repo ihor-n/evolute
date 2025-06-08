@@ -9,7 +9,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from '.'
+} from '..'
 
 describe('Pagination Components', () => {
   const components = [

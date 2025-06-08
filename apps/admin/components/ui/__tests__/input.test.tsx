@@ -1,12 +1,12 @@
 import { describe, it } from '@jest/globals'
 import { createRoot } from 'react-dom/client'
-import { Button } from '.'
+import { Input } from '..'
 
-describe('Button', () => {
+describe('Input', () => {
   it('renders without crashing', () => {
     const div = document.createElement('div')
     const root = createRoot(div)
-    root.render(<Button />)
+    root.render(<Input />)
     root.unmount()
   })
 })
