@@ -85,3 +85,24 @@ Follow these steps to get the project up and running locally:
 
 - **API**: `http://localhost:5001/api/users`
 - **Dashboard**: `http://localhost:3002`
+
+## Bonus Commands
+
+These commands can be run from the **root** of the project or within specific `apps/*` or `packages/*` directories if they have corresponding scripts in their `package.json`.
+
+- **Type Checking**:
+  ```bash
+  npm run check-types
+  ```
+- **Linting**:
+  ```bash
+  npm run lint
+  ```
+- **Formatting**:
+  ```bash
+  npm run format
+  ```
+- **Testing**:
+  ```bash
+  npm run test
+  ```
