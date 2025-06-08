@@ -2,15 +2,17 @@
 const config = {
   roots: ['<rootDir>'],
   testEnvironment: 'jsdom',
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest'
-  },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   modulePathIgnorePatterns: ['<rootDir>/test/__fixtures__', '<rootDir>/node_modules', '<rootDir>/dist'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  preset: 'ts-jest'
+  preset: 'ts-jest',
+  globals: {
+    'ts-jest': {
+      babelConfig: true
+    }
+  }
 }
 
 export default config

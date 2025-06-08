@@ -11,7 +11,7 @@
     "create-indexes": "tsx src/scripts/create-indexes.ts",
     "check-types": "tsc --noEmit --skipLibCheck",
     "lint": "eslint src/ --max-warnings 0",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles --coverage"
   },
   "jest": {
     "preset": "@repo/jest-presets/node"

@@ -2,8 +2,11 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["PORT", "MONGODB_URI"],
+      "env": ["NODE_ENV", "PORT", "MONGODB_URI"],
       "outputs": ["dist/**"]
+    },
+    "test": {
+      "outputs": ["coverage/**"]
     }
   }
 }
