@@ -1,9 +1,10 @@
 import { injectable } from 'inversify'
 import Manufacturer, { IManufacturer } from '../models/Manufacturer'
 import { FilterQuery, PopulateOptions } from 'mongoose'
+import { type IManufacturerRepository } from '@/src/core/interfaces/repositories/IManufacturerRepository'
 
 @injectable()
-export class ManufacturerRepository {
+export class ManufacturerRepository implements IManufacturerRepository {
   async create(data: Partial<IManufacturer>): Promise<IManufacturer> {
     return Manufacturer.create(data)
   }

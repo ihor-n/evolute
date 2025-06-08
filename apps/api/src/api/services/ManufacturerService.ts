@@ -1,15 +1,16 @@
-import { UserRepository } from '@/src/core/repositories/UserRepository'
-import { ManufacturerRepository } from '@/src/core/repositories/ManufacturerRepository'
+import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
+import { type IManufacturerRepository } from '@/src/core/interfaces/repositories/IManufacturerRepository'
 import { type IManufacturer } from '@/src/core/models/Manufacturer'
 import { type IUser as IDtoUser, type IManufacturersResponse, type IManufacturerWithUsersForList } from '@repo/dto'
 import { inject, injectable } from 'inversify'
 import { TOKENS } from '@/src/infrastructure/di/tokens'
+import { type IManufacturerService } from '@/src/core/interfaces/services/IManufacturerService'
 
 @injectable()
-export class ManufacturerService {
+export class ManufacturerService implements IManufacturerService {
   constructor(
-    @inject(TOKENS.UserRepository) private userRepository: UserRepository,
-    @inject(TOKENS.ManufacturerRepository) private manufacturerRepository: ManufacturerRepository
+    @inject(TOKENS.UserRepository) private userRepository: IUserRepository,
+    @inject(TOKENS.ManufacturerRepository) private manufacturerRepository: IManufacturerRepository
   ) {}
 
   async addUsersToNewManufacturer(

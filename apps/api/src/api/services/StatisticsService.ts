@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
-import { UserRepository } from '@/src/core/repositories/UserRepository'
+import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
 import { injectable, inject } from 'inversify'
 import { TOKENS } from '@/src/infrastructure/di/tokens'
 import { type IUserStatisticsResponse, type IUserWithScore, type IDemographicInsight } from '@repo/dto'
+import { type IStatisticsService } from '@/src/core/interfaces/services/IStatisticsService'
 
 interface UserStatisticsFacetOutput {
   usersWithScores: IUserWithScore[]
@@ -11,8 +12,8 @@ interface UserStatisticsFacetOutput {
 }
 
 @injectable()
-export class StatisticsService {
-  constructor(@inject(TOKENS.UserRepository) private userRepository: UserRepository) {}
+export class StatisticsService implements IStatisticsService {
+  constructor(@inject(TOKENS.UserRepository) private userRepository: IUserRepository) {}
 
   async getUserStatistics(page: number = 1, limit: number = 10): Promise<IUserStatisticsResponse> {
     const thirtyDaysAgo = new Date()

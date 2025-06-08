@@ -1,9 +1,10 @@
 import { injectable } from 'inversify'
 import User, { IUser } from '@/src/core/models/User'
 import { FilterQuery, PipelineStage } from 'mongoose'
+import { type IUserRepository } from '@/src/core/interfaces/repositories/IUserRepository'
 
 @injectable()
-export class UserRepository {
+export class UserRepository implements IUserRepository {
   async find(
     query: FilterQuery<IUser>,
     page: number = 1,
