@@ -29,7 +29,7 @@ Follow these steps to get the project up and running locally:
 1.  **Clone the Repository**
 
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/ihor-n/evolute.git
     cd evolute
     ```
 
