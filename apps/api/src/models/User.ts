@@ -117,7 +117,7 @@ export interface IUser extends Document {
   address?: IAddress
   joinedAt: Date
   lastActive?: Date
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 const UserSchema: Schema = new Schema(

@@ -5,9 +5,11 @@ import { type IUser } from '@/src/models/User'
 import { type IManufacturer } from '@/src/models/Manufacturer'
 import {
   type IUserStatisticsResponse,
-  type IUser as IUserDto,
+  type IUser as IDtoUser,
   type IManufacturersResponse,
-  type IManufacturerWithUsersForList
+  type IManufacturerWithUsersForList,
+  type IUserWithScore,
+  type IDemographicInsight
 } from '@repo/dto'
 
 export interface GetFilters {
@@ -18,6 +20,12 @@ export interface GetFilters {
   department?: string
   jobTitle?: string
   status?: 'active' | 'inactive'
+}
+
+interface UserStatisticsFacetOutput {
+  usersWithScores: IUserWithScore[]
+  demographicInsights: IDemographicInsight[]
+  totalUsers: { count: number }[]
 }
 
 export class UserService {
@@ -104,7 +112,7 @@ export class UserService {
 
     const manufacturersWithUsers = manufacturers.map(m => ({
       ...m.toObject(),
-      userIds: m.userIds as unknown as IUserDto[]
+      userIds: m.userIds as unknown as IDtoUser[]
     })) as IManufacturerWithUsersForList[]
 
     return {
@@ -236,10 +244,10 @@ export class UserService {
       }
     ]
 
-    const result = await this.userRepository.aggregate(pipeline)
+    const result = await this.userRepository.aggregate<UserStatisticsFacetOutput>(pipeline)
 
     if (result && result.length > 0) {
-      const data = result[0]
+      const data: UserStatisticsFacetOutput = result[0]
       return {
         usersWithScores: data.usersWithScores || [],
         demographicInsights: data.demographicInsights || [],

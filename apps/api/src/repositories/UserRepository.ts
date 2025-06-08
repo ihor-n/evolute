@@ -1,4 +1,4 @@
-import User, { IUser } from '../models/User'
+import User, { IUser } from '@/src/models/User'
 import { FilterQuery, PipelineStage } from 'mongoose'
 
 export class UserRepository {
@@ -32,8 +32,8 @@ export class UserRepository {
     return User.find({ _id: { $in: ids } }).exec()
   }
 
-  async aggregate(pipeline: PipelineStage[]): Promise<any[]> {
-    return User.aggregate(pipeline).allowDiskUse(true).exec()
+  async aggregate<T>(pipeline: PipelineStage[]): Promise<T[]> {
+    return User.aggregate<T>(pipeline).allowDiskUse(true).exec()
   }
 }
 
