@@ -7,7 +7,7 @@ services:
     ports:
       - '27017:27017'
     environment:
-      - MONGO_INITDB_DATABASE=user_management_dashboard
+      - MONGO_INITDB_DATABASE=evolute
     volumes:
       - mongo-data:/data/db
 
