@@ -10,10 +10,6 @@ export const createServer = (): Express => {
     .use(json())
     .use(cors())
 
-  app.get('/status', (_, res) => {
-    return res.json({ ok: true })
-  })
-
   app.use('/api', routes)
   app.use(errorHandler)
   return app
